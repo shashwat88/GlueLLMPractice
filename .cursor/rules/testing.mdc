@@ -1,0 +1,14 @@
+---
+description: Testing guidance for pytest
+globs: "tests/**/*.py"
+alwaysApply: false
+---
+
+# Testing Rule
+
+- Write pytest-compatible tests for every new function and agent.
+- Mock external API calls (EDGAR, Wikipedia/search APIs) in all unit tests.
+- Structure tests using Arrange / Act / Assert comments.
+- Generate a corresponding test stub whenever a new agent or tool module is created.
+- Include at least one happy path and one error/edge case per function.
+

@@ -1,0 +1,17 @@
+---
+description: Project Python style guide (type hints + Google docstrings)
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Style Guide
+
+- Follow PEP 8 and PEP 257.
+- Use type hints on all function signatures.
+- Use Google-style docstrings and add them automatically when generating new functions/classes.
+- Prefer explicit over implicit behavior (avoid magic values; avoid bare `except`).
+- Do not silently swallow exceptions. Handle errors intentionally.
+- Use `dataclasses` or `pydantic` models for structured data instead of raw `dict`s.
+- Keep functions under 40 lines; extract helpers when logic grows.
+- For any code touching external systems (HTTP, file I/O), keep responsibilities separated and easily mockable.
+
