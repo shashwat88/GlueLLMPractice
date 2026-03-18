@@ -26,6 +26,15 @@ Set:
 export GLUELLM_EDGAR_USER_AGENT="gluellm-interview (contact: your-email@example.com)"
 ```
 
+#### EODHD API Key
+
+The EODHD real-time endpoint requires an API token.
+Set:
+
+```bash
+export EODHD_API_KEY="your-eodhd-api-key"
+```
+
 ## Project Layout
 
 ```text
@@ -87,6 +96,8 @@ What it does:
 At runtime you will be prompted for:
 - an initial SEC research question
 - follow-up questions until you type `quit`
+
+
 
 Notes:
 - If the tools do not return relevant evidence for your question, the agent will explain that it cannot answer it from retrieved SEC evidence.
