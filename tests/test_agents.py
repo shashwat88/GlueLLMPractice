@@ -5,6 +5,7 @@ These tests stub out LLM behavior so no external API calls are made.
 
 from __future__ import annotations
 
+import json
 from typing import Any, Callable
 from unittest.mock import Mock
 
@@ -152,11 +153,14 @@ async def test_directory_crawler_interactive_prints_fallback(monkeypatch: pytest
         DirectoryAnswer(can_answer=False, answer="", cannot_answer_reason="Not enough information in the report."),
     ]
 
-    def fake_glue_init(*args: Any, **kwargs: Any) -> _FakeGlueLLM:
-        return _FakeGlueLLM(structured_outputs=fake_outputs)
+    idx = 0
 
-    # Patch GlueLLM in the directory crawler module.
-    monkeypatch.setattr("agents.directory_crawler.GlueLLM", fake_glue_init)
+    async def fake_run_reflection_workflow_parsed(*args: Any, **kwargs: Any) -> DirectoryAnswer:
+        nonlocal idx
+        _ = args, kwargs
+        out = fake_outputs[idx]
+        idx += 1
+        return out
 
     # Patch scan_directory to return a minimal report.
     report = DirectoryReport(
@@ -180,6 +184,7 @@ async def test_directory_crawler_interactive_prints_fallback(monkeypatch: pytest
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr("agents.directory_crawler.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
 
     await directory_crawler_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
@@ -199,15 +204,19 @@ async def test_basic_research_interactive_quit(monkeypatch: pytest.MonkeyPatch, 
             query="What is AI?",
             summary="AI stands for artificial intelligence.",
             key_points=["It is used for smart tasks."],
-            sources=[],
+                sources=[{"title": "Artificial intelligence", "url": "https://example.com/ai"}],
             cannot_answer_reason=None,
         ),
     ]
 
-    def fake_glue_init(*args: Any, **kwargs: Any) -> _FakeGlueLLM:
-        return _FakeGlueLLM(structured_outputs=fake_outputs)
+    idx = 0
 
-    monkeypatch.setattr("agents.basic_research.GlueLLM", fake_glue_init)
+    async def fake_run_reflection_workflow_parsed(*args: Any, **kwargs: Any) -> ResearchResponse:
+        nonlocal idx
+        _ = args, kwargs
+        out = fake_outputs[idx]
+        idx += 1
+        return out
 
     inputs = iter(["What is AI?", "quit"])
 
@@ -215,6 +224,7 @@ async def test_basic_research_interactive_quit(monkeypatch: pytest.MonkeyPatch, 
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr("agents.basic_research.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
 
     await basic_research_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
@@ -230,10 +240,14 @@ async def test_sec_research_interactive_cannot_answer(monkeypatch: pytest.Monkey
         SecAnswer(can_answer=False, answer="", citations=[], cannot_answer_reason="No matching filings."),
     ]
 
-    def fake_glue_init(*args: Any, **kwargs: Any) -> _FakeGlueLLM:
-        return _FakeGlueLLM(structured_outputs=fake_outputs)
+    idx = 0
 
-    monkeypatch.setattr("agents.sec_research.GlueLLM", fake_glue_init)
+    async def fake_run_reflection_workflow_parsed(*args: Any, **kwargs: Any) -> SecAnswer:
+        nonlocal idx
+        _ = args, kwargs
+        out = fake_outputs[idx]
+        idx += 1
+        return out
 
     inputs = iter(["Some SEC question", "quit"])
 
@@ -241,6 +255,7 @@ async def test_sec_research_interactive_cannot_answer(monkeypatch: pytest.Monkey
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr("agents.sec_research.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
 
     await sec_research_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
@@ -262,10 +277,14 @@ async def test_eodhd_stock_agent_interactive_cannot_answer(monkeypatch: pytest.M
         ),
     ]
 
-    def fake_glue_init(*args: Any, **kwargs: Any) -> _FakeGlueLLM:
-        return _FakeGlueLLM(structured_outputs=fake_outputs)
+    idx = 0
 
-    monkeypatch.setattr("agents.eodhd_stock_agent.GlueLLM", fake_glue_init)
+    async def fake_run_reflection_workflow_parsed(*args: Any, **kwargs: Any) -> StockAnswer:
+        nonlocal idx
+        _ = args, kwargs
+        out = fake_outputs[idx]
+        idx += 1
+        return out
 
     # symbol, question, quit
     inputs = iter(["AAPL", "What is the weather?", "quit"])
@@ -274,10 +293,75 @@ async def test_eodhd_stock_agent_interactive_cannot_answer(monkeypatch: pytest.M
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr("agents.eodhd_stock_agent.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
 
     await eodhd_stock_agent_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
     assert "I cannot answer that question based on the available real-time stock evidence." in captured
     assert "Question is unrelated to real-time quote facts." in captured
+
+
+@pytest.mark.asyncio
+async def test_poem_workflow_iteration_logging(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    """Poem workflow should log iterations and return final output when workflow is stubbed."""
+    from agents.poem_loop import run_poem_workflow
+
+    class _FakeWorkflowResult:
+        """Fake WorkflowResult matching the fields used by `run_poem_workflow`."""
+
+        def __init__(self) -> None:
+            self.final_output = "final poem"
+            self.iterations = 2
+            self.agent_interactions = [
+                {"iteration": 1, "agent": "producer", "output": "poem1"},
+                {
+                    "iteration": 1,
+                    "agent": "critic_poetry_quality",
+                    "output": json.dumps(
+                        {
+                            "score": 7,
+                            "strengths": ["imagery"],
+                            "suggestions": ["clarity"],
+                            "revised_poem_guidance": "Make it clearer.",
+                        }
+                    ),
+                },
+                {"iteration": 2, "agent": "producer", "output": "poem2"},
+                {
+                    "iteration": 2,
+                    "agent": "critic_poetry_quality",
+                    "output": json.dumps(
+                        {
+                            "score": 9,
+                            "strengths": ["coherence"],
+                            "suggestions": [],
+                            "revised_poem_guidance": "Looks good.",
+                        }
+                    ),
+                },
+            ]
+
+    class _FakeWorkflow:
+        """Fake IterativeRefinementWorkflow that returns a scripted result."""
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401 - test stub
+            _ = args, kwargs
+
+        async def execute(self, initial_input: str) -> _FakeWorkflowResult:
+            _ = initial_input
+            return _FakeWorkflowResult()
+
+    # Patch the workflow class used in the poem_loop module.
+    monkeypatch.setattr("agents.poem_loop.IterativeRefinementWorkflow", _FakeWorkflow)
+
+    poem, iters = await run_poem_workflow(topic="winter", threshold=8, max_iters=3, model="fake:model")
+    assert poem == "final poem"
+    assert iters == 2
+
+    out = capsys.readouterr().out
+    assert "Iteration: 1" in out
+    assert "Parsed score: 7/10" in out
+    assert "Iteration: 2" in out
+    assert "Parsed score: 9/10" in out
 
 

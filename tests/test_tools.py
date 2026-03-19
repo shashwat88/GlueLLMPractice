@@ -153,7 +153,13 @@ def test_search_tools_search_wikipedia_mocked() -> None:
         }
     }
 
-    def fake_get(url: str, params: dict[str, str] | None = None, timeout: float = 0) -> Any:
+    def fake_get(
+        url: str,
+        params: dict[str, str] | None = None,
+        timeout: float = 0,
+        headers: dict[str, str] | None = None,
+    ) -> Any:
+        _ = headers
         resp = Mock()
         assert "w/api.php" in url
         resp.raise_for_status.return_value = None
@@ -170,7 +176,8 @@ def test_search_tools_search_wikipedia_mocked() -> None:
 def test_search_tools_get_page_summary_mocked() -> None:
     """`get_page_summary` should return None when `extract` is missing or empty."""
 
-    def fake_get(url: str, timeout: float = 0) -> Any:
+    def fake_get(url: str, timeout: float = 0, headers: dict[str, str] | None = None) -> Any:
+        _ = headers
         resp = Mock()
         resp.raise_for_status.return_value = None
         if "missing" in url:

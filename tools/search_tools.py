@@ -10,7 +10,9 @@ All HTTP calls are made via `httpx.get` so that unit tests can mock them.
 from __future__ import annotations
 
 import html
+import os
 from typing import TypedDict
+from urllib.parse import quote
 
 import httpx
 
@@ -19,6 +21,19 @@ WIKI_SEARCH_URL = "https://en.wikipedia.org/w/api.php"
 WIKI_REST_SUMMARY_BASE = "https://en.wikipedia.org/api/rest_v1/page/summary"
 
 DEFAULT_TIMEOUT_SECS = 20.0
+DEFAULT_WIKIPEDIA_USER_AGENT = "GlueLLMPractice/0.1 (https://github.com/; contact: unknown)"
+
+
+def _wiki_headers() -> dict[str, str]:
+    """Return HTTP headers suitable for Wikipedia API access.
+
+    Wikipedia APIs may block requests missing a descriptive User-Agent.
+
+    Returns:
+        Headers including a User-Agent string.
+    """
+    ua = os.environ.get("WIKIPEDIA_USER_AGENT") or DEFAULT_WIKIPEDIA_USER_AGENT
+    return {"User-Agent": ua, "Accept": "application/json"}
 
 
 class PageSearchResult(TypedDict):
@@ -39,14 +54,14 @@ class PageSummary(TypedDict):
 
 def _http_get_json(url: str, *, params: dict[str, str]) -> dict[str, object]:
     """Fetch JSON from Wikipedia and return parsed data."""
-    resp = httpx.get(url, params=params, timeout=DEFAULT_TIMEOUT_SECS)
+    resp = httpx.get(url, params=params, timeout=DEFAULT_TIMEOUT_SECS, headers=_wiki_headers())
     resp.raise_for_status()
     return resp.json()  # type: ignore[return-value]
 
 
 def _http_get_json_rest(url: str) -> dict[str, object]:
     """Fetch JSON from a REST endpoint and return parsed data."""
-    resp = httpx.get(url, timeout=DEFAULT_TIMEOUT_SECS)
+    resp = httpx.get(url, timeout=DEFAULT_TIMEOUT_SECS, headers=_wiki_headers())
     resp.raise_for_status()
     return resp.json()  # type: ignore[return-value]
 
@@ -101,7 +116,7 @@ def get_page_summary(title: str, *, max_chars: int = 2000) -> PageSummary | None
     if not t:
         return None
 
-    url = f"{WIKI_REST_SUMMARY_BASE}/{t}"
+    url = f"{WIKI_REST_SUMMARY_BASE}/{quote(t, safe='')}"
     data = _http_get_json_rest(url)
     # REST v1 includes `title`, `url`, and `extract` (or error payloads).
     extract = data.get("extract") or ""
