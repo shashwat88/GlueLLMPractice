@@ -35,6 +35,45 @@ Set:
 export EODHD_API_KEY="your-eodhd-api-key"
 ```
 
+#### Wikipedia User-Agent (recommended)
+
+Wikipedia may return `403 Forbidden` for requests missing a descriptive `User-Agent`.
+Set:
+
+```bash
+export WIKIPEDIA_USER_AGENT="gluellm-interview (contact: your-email@example.com)"
+```
+
+#### Project logging
+
+This repo includes an optional, GlueLLM-inspired logging setup. Logs are written to `./logs/` by default (rotating file handler).
+
+What gets logged:
+- **Agent/workflow events**: workflow start/parse/fallback events and per-turn events for the interactive agents.
+- **LLM request/response**: every LLM call logs:
+  - `LLM request: ...` (the prompt/query sent to the model)
+  - `LLM response: ...` (the model’s returned text, or structured output rendered as a string)
+
+Notes:
+- **Truncation**: request/response bodies are truncated at **2000 chars** by default to keep logs readable; the log line includes the total original length.
+- **Security**: prompts/responses may include sensitive content. Disable logging or avoid running with secrets in prompts if you don’t want them written to disk.
+
+Common env vars:
+
+```bash
+export PROJECT_LOG_CONSOLE_OUTPUT="true"   # show logs in console (default: false)
+export PROJECT_LOG_LEVEL="INFO"            # console log level
+export PROJECT_LOG_FILE_LEVEL="DEBUG"      # file log level
+export PROJECT_LOG_DIR="logs"              # directory for log files (default: ./logs)
+export PROJECT_LOG_FILE_NAME="gluellm_practice.log" # log file name
+export PROJECT_LOG_JSON_FORMAT="false"     # set true for JSON logs
+export PROJECT_LOG_MAX_BYTES="10485760"    # max log file size before rotation (default: 10MB)
+export PROJECT_LOG_BACKUP_COUNT="5"        # number of rotated backups to keep
+export PROJECT_DISABLE_LOGGING="false"     # set true to disable logging setup
+```
+
+By default, logs go to `logs/gluellm_practice.log`.
+
 ## Project Layout
 
 ```text
@@ -171,4 +210,38 @@ pytest
 Testing notes:
 - Tests mock external HTTP calls (SEC + Wikipedia) so you don’t need API keys to run the test suite.
 - The agent loop tests stub the LLM responses to validate termination and fallback behavior.
+
+## Linting and type-checking
+
+Run linting:
+
+```bash
+ruff check .
+```
+
+Auto-format:
+
+```bash
+ruff format .
+```
+
+Type-check:
+
+```bash
+mypy .
+```
+
+### Pre-commit (recommended)
+
+Install hooks:
+
+```bash
+pre-commit install
+```
+
+Run on all files:
+
+```bash
+pre-commit run --all-files
+```
 

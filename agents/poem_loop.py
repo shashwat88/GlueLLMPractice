@@ -15,13 +15,16 @@ import asyncio
 import json
 import re
 
-from pydantic import BaseModel, Field
-
 from gluellm.executors import AgentExecutor
 from gluellm.models.agent import Agent
 from gluellm.models.prompt import SystemPrompt
 from gluellm.models.workflow import CriticConfig, IterativeConfig
 from gluellm.workflows.iterative import IterativeRefinementWorkflow
+from pydantic import BaseModel, Field
+
+from core.logging_config import get_logger, setup_logging
+
+logger = get_logger(__name__)
 
 
 class Critique(BaseModel):
@@ -29,7 +32,9 @@ class Critique(BaseModel):
 
     score: int = Field(ge=0, le=10, description="Quality score from 0 to 10")
     strengths: list[str] = Field(default_factory=list, description="What the poem does well")
-    suggestions: list[str] = Field(default_factory=list, description="Concrete improvements to apply")
+    suggestions: list[str] = Field(
+        default_factory=list, description="Concrete improvements to apply"
+    )
     revised_poem_guidance: str = Field(description="Guidance for the next revision")
 
 
@@ -91,7 +96,7 @@ def _build_critic_agent(*, model: str) -> Agent:
                 "You are a strict poetry critic.\n"
                 "Evaluate the poem for originality, imagery, coherence, and overall quality.\n"
                 "Return ONLY valid JSON with this schema:\n"
-                '{\n'
+                "{\n"
                 '  "score": integer 0-10,\n'
                 '  "strengths": string array,\n'
                 '  "suggestions": string array,\n'
@@ -106,7 +111,9 @@ def _build_critic_agent(*, model: str) -> Agent:
     )
 
 
-def _format_iteration_log(*, iteration: int, poem: str | None, critic_feedback: str | None, score: int | None) -> None:
+def _format_iteration_log(
+    *, iteration: int, poem: str | None, critic_feedback: str | None, score: int | None
+) -> None:
     """Print one iteration transcript."""
     print("\n" + "=" * 70)
     print(f"Iteration: {iteration}")
@@ -132,6 +139,13 @@ async def run_poem_workflow(
     model: str,
 ) -> tuple[str, int]:
     """Run poem generation + critique refinement using GlueLLM workflow."""
+    logger.info(
+        "Starting poem workflow: topic=%r threshold=%s max_iters=%s model=%s",
+        topic,
+        threshold,
+        max_iters,
+        model,
+    )
     writer_agent = _build_writer_agent(model=model)
     critic_agent = _build_critic_agent(model=model)
 
@@ -186,17 +200,24 @@ async def run_poem_workflow(
         feedback = feedback_by_iter.get(i)
         score = _parse_score(feedback) if feedback is not None else None
         _format_iteration_log(iteration=i, poem=poem, critic_feedback=feedback, score=score)
+        logger.info("Poem iteration=%s score=%s", i, score)
 
     return result.final_output, result.iterations
 
 
 async def main() -> None:
     """CLI entrypoint for the poem refinement workflow."""
-    parser = argparse.ArgumentParser(description="Writer + Critic poem refinement loop (GlueLLM workflow).")
+    setup_logging()
+    logger.info("CLI start: poem_loop")
+    parser = argparse.ArgumentParser(
+        description="Writer + Critic poem refinement loop (GlueLLM workflow)."
+    )
     parser.add_argument("--topic", type=str, required=True, help="Topic for the poem.")
     parser.add_argument("--threshold", type=int, default=8, help="Score threshold (0-10).")
     parser.add_argument("--max-iters", type=int, default=10, help="Maximum refinement iterations.")
-    parser.add_argument("--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string.")
+    parser.add_argument(
+        "--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string."
+    )
     args = parser.parse_args()
 
     poem, iters = await run_poem_workflow(
@@ -215,4 +236,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-

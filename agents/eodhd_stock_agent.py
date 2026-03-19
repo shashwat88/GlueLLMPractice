@@ -15,21 +15,26 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import uuid
 from typing import Any
 
+from gluellm.models.agent import Agent
+from gluellm.models.prompt import SystemPrompt
 from pydantic import BaseModel, Field
 
-from gluellm.models.agent import Agent
-from gluellm.models.prompt import SystemPrompt 
+from core.logging_config import get_logger, setup_logging
 from core.workflow_wrappers import run_reflection_workflow_parsed
-
 from tools.eodhd_tools import fetch_realtime_quote, normalize_stock_symbol
+
+logger = get_logger(__name__)
 
 
 class StockAnswer(BaseModel):
     """Structured answer produced by the stock agent."""
 
-    can_answer: bool = Field(description="Whether the question can be answered from fetched quote evidence.")
+    can_answer: bool = Field(
+        description="Whether the question can be answered from fetched quote evidence."
+    )
     stock_symbol: str = Field(description="The stock symbol this answer refers to.")
     answer: str = Field(description="Answer text (only if can_answer=true).")
     cannot_answer_reason: str | None = Field(
@@ -41,6 +46,7 @@ class StockAnswer(BaseModel):
 def _is_quit(text: str) -> bool:
     """Return True if the user wants to exit the interactive loop."""
     return text.strip().lower() == "quit"
+
 
 def _build_conversation_history(history: list[tuple[str, str]]) -> str:
     """Render prior Q/A into a compact text block for the workflow prompt."""
@@ -81,7 +87,7 @@ def _build_generator_agent(
         "}\n"
         f"\nFixed stock_symbol for this session: {stock_symbol}.\n"
         "Rules:\n"
-        "- If can_answer=false: answer must be \"\" and cannot_answer_reason must be non-empty.\n"
+        '- If can_answer=false: answer must be "" and cannot_answer_reason must be non-empty.\n'
         "- If can_answer=true: answer must be non-empty."
     )
     return Agent(
@@ -121,7 +127,17 @@ async def _answer_with_workflow(
     history: list[tuple[str, str]],
 ) -> StockAnswer:
     """Answer one stock question using ReflectionWorkflow and parse strict JSON."""
-    generator = _build_generator_agent(model=model, stock_symbol=stock_symbol, max_tool_iterations=max_tool_iterations)
+    turn_id = uuid.uuid4().hex[:8]
+    logger.info(
+        "stock.turn_start turn_id=%s symbol=%s question_len=%s history_turns=%s",
+        turn_id,
+        stock_symbol,
+        len(question),
+        len(history),
+    )
+    generator = _build_generator_agent(
+        model=model, stock_symbol=stock_symbol, max_tool_iterations=max_tool_iterations
+    )
     reflector = _build_reflector_agent(model=model)
     history_text = _build_conversation_history(history)
     initial_input = (
@@ -147,10 +163,27 @@ async def _answer_with_workflow(
         max_reflections=2,
         on_parse_error=_on_parse_error,
     )
+    logger.info(
+        "stock.turn_parsed turn_id=%s symbol=%s can_answer=%s answer_len=%s returned_symbol=%s",
+        turn_id,
+        stock_symbol,
+        parsed.can_answer,
+        len(parsed.answer),
+        parsed.stock_symbol,
+    )
 
     # Evidence guard: ensure symbol consistency and non-empty answer when can_answer=true.
     if parsed.can_answer:
-        if parsed.stock_symbol.strip().upper() != stock_symbol.strip().upper() or not parsed.answer.strip():
+        if (
+            parsed.stock_symbol.strip().upper() != stock_symbol.strip().upper()
+            or not parsed.answer.strip()
+        ):
+            logger.info(
+                "stock.evidence_guard_flip turn_id=%s reason=%s returned_symbol=%s",
+                turn_id,
+                "symbol_mismatch_or_empty_answer",
+                parsed.stock_symbol,
+            )
             return StockAnswer(
                 can_answer=False,
                 stock_symbol=stock_symbol,
@@ -164,6 +197,7 @@ async def eodhd_stock_agent_interactive(*, model: str, max_tool_iterations: int)
     """Run the interactive stock Q&A loop."""
     symbol_input = input("Enter a stock symbol (e.g., AAPL): ").strip()
     if _is_quit(symbol_input):
+        logger.info("cli.quit agent=eodhd_stock_agent stage=initial_symbol")
         return
     try:
         stock_symbol = normalize_stock_symbol(symbol_input)
@@ -173,10 +207,12 @@ async def eodhd_stock_agent_interactive(*, model: str, max_tool_iterations: int)
 
     question = input("Stock question (or type 'quit' to exit): ").strip()
     if _is_quit(question):
+        logger.info("cli.quit agent=eodhd_stock_agent stage=initial_question")
         return
     while not question:
         question = input("Question cannot be empty. Stock question (or 'quit'): ").strip()
         if _is_quit(question):
+            logger.info("cli.quit agent=eodhd_stock_agent stage=initial_question_empty")
             return
 
     history: list[tuple[str, str]] = []
@@ -188,27 +224,41 @@ async def eodhd_stock_agent_interactive(*, model: str, max_tool_iterations: int)
             question=question,
             history=history,
         )
+        logger.info(
+            "Stock Q&A: symbol=%s can_answer=%s question=%r",
+            stock_symbol,
+            answer.can_answer,
+            question,
+        )
         if answer.can_answer:
             print("\nAnswer\n" + "-" * 40)
             print(answer.answer)
         else:
             reason = answer.cannot_answer_reason or "Insufficient evidence."
-            print("\nI cannot answer that question based on the available real-time stock evidence.")
+            print(
+                "\nI cannot answer that question based on the available real-time stock evidence."
+            )
             print("Reason: " + reason)
+            logger.info("Stock cannot_answer_reason=%r", reason)
 
         assistant_text = answer.answer if answer.can_answer else f"Cannot answer: {reason}"
         history.append((question, assistant_text))
 
         follow_up = input("\nFollow-up (or type 'quit' to exit): ").strip()
         if _is_quit(follow_up):
+            logger.info("cli.quit agent=eodhd_stock_agent stage=follow_up")
             return
         question = follow_up
 
 
 async def main() -> None:
     """CLI entrypoint for the EODHD stock research agent."""
+    setup_logging()
+    logger.info("CLI start: eodhd_stock_agent")
     parser = argparse.ArgumentParser(description="EODHD real-time stock research agent.")
-    parser.add_argument("--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string.")
+    parser.add_argument(
+        "--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string."
+    )
     parser.add_argument("--max-iters", type=int, default=6, help="Max tool execution iterations.")
     args = parser.parse_args()
 
@@ -217,4 +267,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-

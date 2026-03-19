@@ -11,9 +11,7 @@ local directory tree and return a structured report with:
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -22,7 +20,9 @@ class FileInfo(BaseModel):
     """Information about a file found during a directory scan."""
 
     relative_path: str = Field(description="Path relative to scan root")
-    extension: str = Field(description="Lowercased file extension (without leading dot); empty for no extension")
+    extension: str = Field(
+        description="Lowercased file extension (without leading dot); empty for no extension"
+    )
     size_bytes: int = Field(description="File size in bytes")
     depth: int = Field(description="Nesting depth of the file relative to root")
 
@@ -40,9 +40,13 @@ class DirectoryReport(BaseModel):
     root: str = Field(description="Root directory path provided by the user")
     max_depth: int = Field(description="Maximum nesting depth encountered")
     total_files: int = Field(description="Total number of files scanned")
-    total_dirs: int = Field(description="Total number of directories scanned (excluding root itself)")
+    total_dirs: int = Field(
+        description="Total number of directories scanned (excluding root itself)"
+    )
     files: list[FileInfo] = Field(description="Flat list of files with extension and size metadata")
-    dirs: list[DirInfo] = Field(default_factory=list, description="Flat list of directories with depth metadata")
+    dirs: list[DirInfo] = Field(
+        default_factory=list, description="Flat list of directories with depth metadata"
+    )
 
 
 def _extension_for_path(p: Path) -> str:
@@ -78,7 +82,7 @@ def scan_directory(root: str, *, max_files: int = 100000) -> DirectoryReport:
     max_depth = 0
     total_dirs = 0
 
-    for dirpath, dirnames, filenames in os.walk(root_path, topdown=True, followlinks=False):
+    for dirpath, _dirnames, filenames in os.walk(root_path, topdown=True, followlinks=False):
         # Count directories (excluding root itself).
         rel_dir = Path(dirpath).relative_to(root_path)
         if rel_dir.parts:
@@ -137,4 +141,3 @@ def largest_file(report: DirectoryReport) -> FileInfo | None:
     if not report.files:
         return None
     return max(report.files, key=lambda f: f.size_bytes)
-

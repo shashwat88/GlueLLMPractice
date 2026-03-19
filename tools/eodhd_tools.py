@@ -21,7 +21,6 @@ from typing import Any
 
 import httpx
 
-
 EODHD_API_BASE = "https://eodhd.com/api/real-time/{symbol}.US"
 DEFAULT_TIMEOUT_SECS = 20.0
 
@@ -54,12 +53,9 @@ def _build_eodhd_url(stock_symbol: str) -> tuple[str, str]:
     """
     api_key = os.getenv("EODHD_API_KEY")
     if not api_key:
-        raise EnvironmentError("Missing environment variable: EODHD_API_KEY")
+        raise OSError("Missing environment variable: EODHD_API_KEY")
     symbol = normalize_stock_symbol(stock_symbol)
-    url = (
-        f"{EODHD_API_BASE.format(symbol=symbol)}"
-        f"?api_token={api_key}&fmt=json"
-    )
+    url = f"{EODHD_API_BASE.format(symbol=symbol)}?api_token={api_key}&fmt=json"
     redacted_url = url.replace(f"api_token={api_key}", "api_token=***")
     return url, redacted_url
 
@@ -100,4 +96,3 @@ def fetch_realtime_quote(stock_symbol: str, max_chars: int = 200000) -> dict[str
             "error": str(e),
             "suggestion": "Ensure EODHD_API_KEY is set and the symbol is valid.",
         }
-

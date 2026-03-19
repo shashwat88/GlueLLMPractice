@@ -7,12 +7,14 @@ repeating setup code.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Generic, TypeVar
-
-from pydantic import BaseModel
+from typing import Any, Generic, TypeVar
 
 from gluellm.api import GlueLLM
+from pydantic import BaseModel
+
+from core.logging_config import log_llm_request_response
 
 TStructured = TypeVar("TStructured", bound=BaseModel)
 
@@ -63,9 +65,13 @@ class BaseAgent(Generic[TStructured]):
         """
         client = self._ensure_client()
         result = await client.complete(user_message, **kwargs)
-        return result.final_response
+        response_text = result.final_response
+        log_llm_request_response(user_message, str(response_text))
+        return response_text
 
-    async def complete_structured(self, user_message: str, response_format: type[TStructured], **kwargs: Any) -> TStructured:
+    async def complete_structured(
+        self, user_message: str, response_format: type[TStructured], **kwargs: Any
+    ) -> TStructured:
         """Run a structured completion and return the parsed Pydantic model.
 
         Args:
@@ -82,5 +88,6 @@ class BaseAgent(Generic[TStructured]):
             response_format=response_format,
             **kwargs,
         )
-        return result.structured_output
-
+        structured = result.structured_output
+        log_llm_request_response(user_message, str(structured))
+        return structured

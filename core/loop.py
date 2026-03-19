@@ -10,8 +10,9 @@ testable, and reusable. Individual agents provide the "async decision makers"
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Generic, Literal, TypeVar
+from typing import Generic, Literal, TypeVar
 
 from pydantic import BaseModel
 
@@ -52,7 +53,11 @@ def rps_winner(a: RPSMove, b: RPSMove) -> Literal["a", "b", "draw"]:
     """
     if a == b:
         return "draw"
-    if (a == "rock" and b == "scissors") or (a == "paper" and b == "rock") or (a == "scissors" and b == "paper"):
+    if (
+        (a == "rock" and b == "scissors")
+        or (a == "paper" and b == "rock")
+        or (a == "scissors" and b == "paper")
+    ):
         return "a"
     return "b"
 
@@ -144,7 +149,9 @@ async def run_rps_game(
         if on_round is not None:
             on_round(round_history)
 
-    return RPSGameResult(rounds=rounds, score_a=score_a, score_b=score_b, draws=draws, history=history)
+    return RPSGameResult(
+        rounds=rounds, score_a=score_a, score_b=score_b, draws=draws, history=history
+    )
 
 
 CritiqueT = TypeVar("CritiqueT", bound=BaseModel)
@@ -215,4 +222,3 @@ async def run_refinement_loop(
         current_draft = await writer_fn(i, current_draft, critique)
 
     raise LoopLimitError(f"Refinement loop did not converge within {max_iters} iterations.")
-

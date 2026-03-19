@@ -14,14 +14,17 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-
-from pydantic import BaseModel, Field
+import uuid
 
 from gluellm.models.agent import Agent
 from gluellm.models.prompt import SystemPrompt
+from pydantic import BaseModel, Field
 
-from tools.edgar_tools import fetch_filing_text, list_recent_filings, search_company
+from core.logging_config import get_logger, setup_logging
 from core.workflow_wrappers import run_reflection_workflow_parsed
+from tools.edgar_tools import fetch_filing_text, list_recent_filings, search_company
+
+logger = get_logger(__name__)
 
 
 class FilingCitation(BaseModel):
@@ -45,12 +48,15 @@ class SecAnswer(BaseModel):
     citations: list[FilingCitation] = Field(
         description="List of filing citations used to answer the question (empty if can_answer is false)."
     )
-    cannot_answer_reason: str | None = Field(description="Reason for inability to answer (if can_answer is false).")
+    cannot_answer_reason: str | None = Field(
+        description="Reason for inability to answer (if can_answer is false)."
+    )
 
 
 def _is_quit(text: str) -> bool:
     """Return True if the user wants to exit the interactive loop."""
     return text.strip().lower() == "quit"
+
 
 def _build_conversation_history(history: list[tuple[str, str]]) -> str:
     """Render prior Q/A into a compact text block for the workflow prompt."""
@@ -84,7 +90,7 @@ def _build_generator_agent(*, model: str, max_tool_iterations: int) -> Agent:
         '  "cannot_answer_reason": string|null\n'
         "}\n"
         "Rules:\n"
-        "- If can_answer is false: answer must be \"\", citations must be [], and cannot_answer_reason must be a helpful explanation.\n"
+        '- If can_answer is false: answer must be "", citations must be [], and cannot_answer_reason must be a helpful explanation.\n'
         "- If can_answer is true: citations must be a non-empty list.\n"
     )
     return Agent(
@@ -135,6 +141,13 @@ async def _answer_with_workflow(
     history: list[tuple[str, str]],
 ) -> SecAnswer:
     """Answer a single question using ReflectionWorkflow and parse strict JSON."""
+    turn_id = uuid.uuid4().hex[:8]
+    logger.info(
+        "sec.turn_start turn_id=%s question_len=%s history_turns=%s",
+        turn_id,
+        len(question),
+        len(history),
+    )
     generator = _build_generator_agent(model=model, max_tool_iterations=max_tool_iterations)
     reflector = _build_reflector_agent(model=model)
     history_text = _build_conversation_history(history)
@@ -161,9 +174,22 @@ async def _answer_with_workflow(
         max_reflections=2,
         on_parse_error=_on_parse_error,
     )
+    logger.info(
+        "sec.turn_parsed turn_id=%s can_answer=%s citations=%s answer_len=%s",
+        turn_id,
+        parsed.can_answer,
+        len(parsed.citations),
+        len(parsed.answer),
+    )
 
     # Evidence guard: avoid presenting an answer without citations.
     if parsed.can_answer and not parsed.citations:
+        logger.info("SEC evidence guard flip: can_answer=true but citations empty")
+        logger.info(
+            "sec.evidence_guard_flip turn_id=%s reason=%s",
+            turn_id,
+            "can_answer_true_but_citations_empty",
+        )
         return SecAnswer(
             can_answer=False,
             answer="",
@@ -179,10 +205,14 @@ async def sec_research_interactive(*, model: str, max_tool_iterations: int) -> N
 
     question = input("Enter your SEC research question (or type 'quit' to exit): ").strip()
     while question and _is_quit(question):
+        logger.info("cli.quit agent=sec_research stage=initial_prompt")
         return
     while not question:
-        question = input("Question cannot be empty. Enter your SEC research question (or 'quit'): ").strip()
+        question = input(
+            "Question cannot be empty. Enter your SEC research question (or 'quit'): "
+        ).strip()
         if _is_quit(question):
+            logger.info("cli.quit agent=sec_research stage=initial_prompt_empty")
             return
 
     while True:
@@ -192,6 +222,7 @@ async def sec_research_interactive(*, model: str, max_tool_iterations: int) -> N
             question=question,
             history=history,
         )
+        logger.info("SEC Q&A: can_answer=%s question=%r", answer.can_answer, question)
 
         if answer.can_answer:
             print("\nAnswer\n" + "-" * 40)
@@ -202,20 +233,28 @@ async def sec_research_interactive(*, model: str, max_tool_iterations: int) -> N
             reason = answer.cannot_answer_reason or "Insufficient evidence from retrieved filings."
             print("\nI cannot answer that question based on the retrieved SEC evidence.")
             print("Reason: " + reason)
+            logger.info("SEC cannot_answer_reason=%r", reason)
 
         assistant_text = answer.answer if answer.can_answer else f"Cannot answer: {reason}"
         history.append((question, assistant_text))
 
         follow_up = input("\nFollow-up (or type 'quit' to exit): ").strip()
         if _is_quit(follow_up):
+            logger.info("cli.quit agent=sec_research stage=follow_up")
             return
         question = follow_up
 
 
 async def main() -> None:
     """CLI entrypoint for SEC EDGAR research."""
-    parser = argparse.ArgumentParser(description="SEC EDGAR research agent with interactive follow-ups.")
-    parser.add_argument("--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string.")
+    setup_logging()
+    logger.info("CLI start: sec_research")
+    parser = argparse.ArgumentParser(
+        description="SEC EDGAR research agent with interactive follow-ups."
+    )
+    parser.add_argument(
+        "--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string."
+    )
     parser.add_argument("--max-iters", type=int, default=6, help="Max tool execution iterations.")
     args = parser.parse_args()
 
@@ -224,4 +263,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
