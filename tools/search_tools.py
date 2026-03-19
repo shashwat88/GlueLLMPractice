@@ -11,11 +11,10 @@ from __future__ import annotations
 
 import html
 import os
-from typing import TypedDict
+from typing import Any, TypedDict
 from urllib.parse import quote
 
 import httpx
-
 
 WIKI_SEARCH_URL = "https://en.wikipedia.org/w/api.php"
 WIKI_REST_SUMMARY_BASE = "https://en.wikipedia.org/api/rest_v1/page/summary"
@@ -52,18 +51,18 @@ class PageSummary(TypedDict):
     summary: str
 
 
-def _http_get_json(url: str, *, params: dict[str, str]) -> dict[str, object]:
+def _http_get_json(url: str, *, params: dict[str, str]) -> dict[str, Any]:
     """Fetch JSON from Wikipedia and return parsed data."""
     resp = httpx.get(url, params=params, timeout=DEFAULT_TIMEOUT_SECS, headers=_wiki_headers())
     resp.raise_for_status()
-    return resp.json()  # type: ignore[return-value]
+    return resp.json()
 
 
-def _http_get_json_rest(url: str) -> dict[str, object]:
+def _http_get_json_rest(url: str) -> dict[str, Any]:
     """Fetch JSON from a REST endpoint and return parsed data."""
     resp = httpx.get(url, timeout=DEFAULT_TIMEOUT_SECS, headers=_wiki_headers())
     resp.raise_for_status()
-    return resp.json()  # type: ignore[return-value]
+    return resp.json()
 
 
 def search_wikipedia(query: str, *, limit: int = 5) -> list[PageSearchResult]:
@@ -128,7 +127,14 @@ def get_page_summary(title: str, *, max_chars: int = 2000) -> PageSummary | None
         summary = summary[:max_chars] + " ..."
 
     title_out = str(data.get("title") or t)
-    url_out = str(data.get("content_urls", {}).get("desktop", {}).get("page", url)) if isinstance(data.get("content_urls"), dict) else url
+    url_out = url
+    content_urls = data.get("content_urls")
+    if isinstance(content_urls, dict):
+        desktop = content_urls.get("desktop")
+        if isinstance(desktop, dict):
+            page_url = desktop.get("page")
+            if isinstance(page_url, str) and page_url:
+                url_out = page_url
     return {"title": title_out, "url": url_out, "summary": summary}
 
 
@@ -150,4 +156,3 @@ def search_and_summarize(query: str, *, limit: int = 3) -> list[PageSummary]:
         if s is not None:
             summaries.append(s)
     return summaries
-

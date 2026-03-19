@@ -6,7 +6,7 @@ These tests stub out LLM behavior so no external API calls are made.
 from __future__ import annotations
 
 import json
-from typing import Any, Callable
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -123,7 +123,9 @@ class _FakeGlueLLM:
         self._structured_outputs = structured_outputs
         self._idx = 0
 
-    async def structured_complete(self, question: str, response_format: type[BaseModel], **kwargs: Any) -> _FakeStructuredResult:
+    async def structured_complete(
+        self, question: str, response_format: type[BaseModel], **kwargs: Any
+    ) -> _FakeStructuredResult:
         """Return the next scripted structured output.
 
         Args:
@@ -142,15 +144,23 @@ class _FakeGlueLLM:
 
 
 @pytest.mark.asyncio
-async def test_directory_crawler_interactive_prints_fallback(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+async def test_directory_crawler_interactive_prints_fallback(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Directory crawler should print an answer or a graceful cannot-answer message."""
     from agents.directory_crawler import DirectoryAnswer, directory_crawler_interactive
     from tools.filesystem_tools import DirectoryReport, FileInfo
 
     # Scripted outputs for two turns (initial + follow-up).
     fake_outputs = [
-        DirectoryAnswer(can_answer=True, answer="There are 2 Python files.", cannot_answer_reason=None),
-        DirectoryAnswer(can_answer=False, answer="", cannot_answer_reason="Not enough information in the report."),
+        DirectoryAnswer(
+            can_answer=True, answer="There are 2 Python files.", cannot_answer_reason=None
+        ),
+        DirectoryAnswer(
+            can_answer=False,
+            answer="",
+            cannot_answer_reason="Not enough information in the report.",
+        ),
     ]
 
     idx = 0
@@ -184,7 +194,10 @@ async def test_directory_crawler_interactive_prints_fallback(monkeypatch: pytest
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr("agents.directory_crawler.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
+    monkeypatch.setattr(
+        "agents.directory_crawler.run_reflection_workflow_parsed",
+        fake_run_reflection_workflow_parsed,
+    )
 
     await directory_crawler_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
@@ -194,9 +207,11 @@ async def test_directory_crawler_interactive_prints_fallback(monkeypatch: pytest
 
 
 @pytest.mark.asyncio
-async def test_basic_research_interactive_quit(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+async def test_basic_research_interactive_quit(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Basic research loop should exit when the user types quit."""
-    from agents.basic_research import ResearchResponse, basic_research_interactive
+    from agents.basic_research import ResearchResponse, ResearchSource, basic_research_interactive
 
     fake_outputs = [
         ResearchResponse(
@@ -204,7 +219,9 @@ async def test_basic_research_interactive_quit(monkeypatch: pytest.MonkeyPatch, 
             query="What is AI?",
             summary="AI stands for artificial intelligence.",
             key_points=["It is used for smart tasks."],
-                sources=[{"title": "Artificial intelligence", "url": "https://example.com/ai"}],
+            sources=[
+                ResearchSource(title="Artificial intelligence", url="https://example.com/ai"),
+            ],
             cannot_answer_reason=None,
         ),
     ]
@@ -224,7 +241,9 @@ async def test_basic_research_interactive_quit(monkeypatch: pytest.MonkeyPatch, 
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr("agents.basic_research.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
+    monkeypatch.setattr(
+        "agents.basic_research.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed
+    )
 
     await basic_research_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
@@ -232,12 +251,16 @@ async def test_basic_research_interactive_quit(monkeypatch: pytest.MonkeyPatch, 
 
 
 @pytest.mark.asyncio
-async def test_sec_research_interactive_cannot_answer(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+async def test_sec_research_interactive_cannot_answer(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     """SEC research loop should print graceful fallback when can_answer is false."""
     from agents.sec_research import SecAnswer, sec_research_interactive
 
     fake_outputs = [
-        SecAnswer(can_answer=False, answer="", citations=[], cannot_answer_reason="No matching filings."),
+        SecAnswer(
+            can_answer=False, answer="", citations=[], cannot_answer_reason="No matching filings."
+        ),
     ]
 
     idx = 0
@@ -255,7 +278,9 @@ async def test_sec_research_interactive_cannot_answer(monkeypatch: pytest.Monkey
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr("agents.sec_research.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
+    monkeypatch.setattr(
+        "agents.sec_research.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed
+    )
 
     await sec_research_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
@@ -264,7 +289,9 @@ async def test_sec_research_interactive_cannot_answer(monkeypatch: pytest.Monkey
 
 
 @pytest.mark.asyncio
-async def test_eodhd_stock_agent_interactive_cannot_answer(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+async def test_eodhd_stock_agent_interactive_cannot_answer(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Stock agent should respond gracefully when can_answer=false."""
     from agents.eodhd_stock_agent import StockAnswer, eodhd_stock_agent_interactive
 
@@ -293,16 +320,23 @@ async def test_eodhd_stock_agent_interactive_cannot_answer(monkeypatch: pytest.M
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr("agents.eodhd_stock_agent.run_reflection_workflow_parsed", fake_run_reflection_workflow_parsed)
+    monkeypatch.setattr(
+        "agents.eodhd_stock_agent.run_reflection_workflow_parsed",
+        fake_run_reflection_workflow_parsed,
+    )
 
     await eodhd_stock_agent_interactive(model="fake:model", max_tool_iterations=1)
     captured = capsys.readouterr().out
-    assert "I cannot answer that question based on the available real-time stock evidence." in captured
+    assert (
+        "I cannot answer that question based on the available real-time stock evidence." in captured
+    )
     assert "Question is unrelated to real-time quote facts." in captured
 
 
 @pytest.mark.asyncio
-async def test_poem_workflow_iteration_logging(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+async def test_poem_workflow_iteration_logging(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Poem workflow should log iterations and return final output when workflow is stubbed."""
     from agents.poem_loop import run_poem_workflow
 
@@ -354,7 +388,9 @@ async def test_poem_workflow_iteration_logging(monkeypatch: pytest.MonkeyPatch, 
     # Patch the workflow class used in the poem_loop module.
     monkeypatch.setattr("agents.poem_loop.IterativeRefinementWorkflow", _FakeWorkflow)
 
-    poem, iters = await run_poem_workflow(topic="winter", threshold=8, max_iters=3, model="fake:model")
+    poem, iters = await run_poem_workflow(
+        topic="winter", threshold=8, max_iters=3, model="fake:model"
+    )
     assert poem == "final poem"
     assert iters == 2
 
@@ -363,5 +399,3 @@ async def test_poem_workflow_iteration_logging(monkeypatch: pytest.MonkeyPatch, 
     assert "Parsed score: 7/10" in out
     assert "Iteration: 2" in out
     assert "Parsed score: 9/10" in out
-
-

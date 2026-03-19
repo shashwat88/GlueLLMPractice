@@ -5,7 +5,6 @@ These tests mock all external HTTP calls to keep them deterministic.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 from unittest.mock import Mock, patch
@@ -13,8 +12,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 from core.loop import normalize_rps_move, rps_winner
-from tools.eodhd_tools import fetch_realtime_quote, normalize_stock_symbol
 from tools.edgar_tools import fetch_filing_text, list_recent_filings, search_company
+from tools.eodhd_tools import fetch_realtime_quote, normalize_stock_symbol
 from tools.filesystem_tools import count_by_extension, largest_file, scan_directory
 from tools.search_tools import get_page_summary, search_wikipedia
 
@@ -96,7 +95,12 @@ def test_edgar_tools_list_recent_filings_mocked() -> None:
         }
     }
 
-    def fake_get(url: str, headers: dict[str, str] | None = None, timeout: float = 0, params: Any | None = None) -> Any:
+    def fake_get(
+        url: str,
+        headers: dict[str, str] | None = None,
+        timeout: float = 0,
+        params: Any | None = None,
+    ) -> Any:
         resp = Mock()
         if "company_tickers.json" in url:
             resp.json.return_value = company_tickers
@@ -233,4 +237,3 @@ def test_fetch_realtime_quote_missing_api_key() -> None:
         result = fetch_realtime_quote("AAPL", max_chars=100000)
         assert result["data"] == {}
         assert "Missing environment variable" in result["error"]
-

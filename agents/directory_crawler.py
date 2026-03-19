@@ -14,23 +14,36 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import uuid
 from typing import Any
-
-from pydantic import BaseModel, Field
 
 from gluellm.models.agent import Agent
 from gluellm.models.prompt import SystemPrompt
+from pydantic import BaseModel, Field
 
+from core.logging_config import get_logger, setup_logging
 from core.workflow_wrappers import run_reflection_workflow_parsed
-from tools.filesystem_tools import DirectoryReport, FileInfo, count_by_extension, largest_file, scan_directory
+from tools.filesystem_tools import (
+    DirectoryReport,
+    FileInfo,
+    count_by_extension,
+    largest_file,
+    scan_directory,
+)
+
+logger = get_logger(__name__)
 
 
 class DirectoryAnswer(BaseModel):
     """Structured directory answer returned to the user."""
 
-    can_answer: bool = Field(description="Whether the scanned report contains enough evidence to answer.")
+    can_answer: bool = Field(
+        description="Whether the scanned report contains enough evidence to answer."
+    )
     answer: str = Field(description="Answer text (only if can_answer is true).")
-    cannot_answer_reason: str | None = Field(description="Why the agent cannot answer from the report.")
+    cannot_answer_reason: str | None = Field(
+        description="Why the agent cannot answer from the report."
+    )
 
 
 def _is_quit(text: str) -> bool:
@@ -66,7 +79,11 @@ def _build_directory_tools(report: DirectoryReport) -> list[Any]:
     def has_extension_tool(extension: str) -> dict[str, Any]:
         """Return whether the report contains files with the given extension."""
         ext_count = count_by_extension(report, extension)
-        return {"extension": extension.strip().lstrip(".").lower(), "exists": ext_count > 0, "count": ext_count}
+        return {
+            "extension": extension.strip().lstrip(".").lower(),
+            "exists": ext_count > 0,
+            "count": ext_count,
+        }
 
     def list_files_by_extension_tool(extension: str, limit: int = 20) -> list[dict[str, Any]]:
         """List (up to `limit`) file relative paths that match `extension`."""
@@ -75,7 +92,9 @@ def _build_directory_tools(report: DirectoryReport) -> list[Any]:
         matches.sort(key=lambda x: x.relative_path)
         out: list[dict[str, Any]] = []
         for f in matches[:limit]:
-            out.append({"relative_path": f.relative_path, "size_bytes": f.size_bytes, "depth": f.depth})
+            out.append(
+                {"relative_path": f.relative_path, "size_bytes": f.size_bytes, "depth": f.depth}
+            )
         return out
 
     def largest_file_tool() -> dict[str, Any]:
@@ -206,7 +225,9 @@ def _build_directory_tools(report: DirectoryReport) -> list[Any]:
                 return f.model_dump()
         return {}
 
-    def list_directories_tool(limit: int = 50, name_contains: str | None = None) -> list[dict[str, Any]]:
+    def list_directories_tool(
+        limit: int = 50, name_contains: str | None = None
+    ) -> list[dict[str, Any]]:
         """List subdirectories discovered during scan."""
         needle = (name_contains or "").strip().lower()
         dirs = report.dirs
@@ -268,7 +289,7 @@ def _build_generator_agent(*, model: str, max_tool_iterations: int, tools: list[
         '  "cannot_answer_reason": string|null\n'
         "}\n"
         "Rules:\n"
-        "- If can_answer=false: answer must be \"\".\n"
+        '- If can_answer=false: answer must be "".\n'
         "- If can_answer=true: answer must be derived from tools and be non-empty.\n"
     )
     return Agent(
@@ -313,8 +334,17 @@ async def _answer_with_workflow(
     history: list[tuple[str, str]],
 ) -> DirectoryAnswer:
     """Answer one directory question using ReflectionWorkflow and parse strict JSON."""
+    turn_id = uuid.uuid4().hex[:8]
+    logger.info(
+        "dir.turn_start turn_id=%s question_len=%s history_turns=%s",
+        turn_id,
+        len(question),
+        len(history),
+    )
     tools = _build_directory_tools(report)
-    generator = _build_generator_agent(model=model, max_tool_iterations=max_tool_iterations, tools=tools)
+    generator = _build_generator_agent(
+        model=model, max_tool_iterations=max_tool_iterations, tools=tools
+    )
     reflector = _build_reflector_agent(model=model)
 
     history_text = _build_conversation_history(history)
@@ -340,8 +370,19 @@ async def _answer_with_workflow(
         max_reflections=2,
         on_parse_error=_on_parse_error,
     )
+    logger.info(
+        "dir.turn_parsed turn_id=%s can_answer=%s answer_len=%s",
+        turn_id,
+        parsed.can_answer,
+        len(parsed.answer),
+    )
 
     if parsed.can_answer and not parsed.answer:
+        logger.info(
+            "dir.evidence_guard_flip turn_id=%s reason=%s",
+            turn_id,
+            "can_answer_true_but_answer_empty",
+        )
         return DirectoryAnswer(
             can_answer=False,
             answer="",
@@ -357,12 +398,21 @@ async def directory_crawler_interactive(*, model: str, max_tool_iterations: int)
         report = scan_directory(root)
     except (FileNotFoundError, NotADirectoryError) as e:
         print(f"Cannot scan directory: {e}")
+        logger.warning("Directory scan failed: root=%s error=%s", root, str(e))
         return
 
+    logger.info(
+        "Directory scan complete: root=%s total_files=%s total_dirs=%s max_depth=%s",
+        report.root,
+        report.total_files,
+        report.total_dirs,
+        report.max_depth,
+    )
     history: list[tuple[str, str]] = []
 
     question = input("Question (or type 'quit' to exit): ").strip()
     while question and _is_quit(question):
+        logger.info("cli.quit agent=directory_crawler stage=initial_question")
         return
     while True:
         if not question:
@@ -378,6 +428,11 @@ async def directory_crawler_interactive(*, model: str, max_tool_iterations: int)
             question=question,
             history=history,
         )
+        logger.info(
+            "Directory Q&A: can_answer=%s question=%r",
+            answer.can_answer,
+            question,
+        )
         if answer.can_answer:
             print("\nAnswer\n" + "-" * 40)
             print(answer.answer)
@@ -385,19 +440,25 @@ async def directory_crawler_interactive(*, model: str, max_tool_iterations: int)
             reason = answer.cannot_answer_reason or "Insufficient evidence in the scanned report."
             print("\nI cannot answer that question from the scanned directory evidence.")
             print("Reason: " + reason)
+            logger.info("Directory cannot_answer_reason=%r", reason)
 
         assistant_text = answer.answer if answer.can_answer else f"Cannot answer: {reason}"
         history.append((question, assistant_text))
 
         question = input("\nFollow-up (or type 'quit' to exit): ").strip()
         if _is_quit(question):
+            logger.info("cli.quit agent=directory_crawler stage=follow_up")
             return
 
 
 async def main() -> None:
     """CLI entrypoint for the directory crawler agent."""
+    setup_logging()
+    logger.info("CLI start: directory_crawler")
     parser = argparse.ArgumentParser(description="Directory crawler agent with cached scans.")
-    parser.add_argument("--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string.")
+    parser.add_argument(
+        "--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string."
+    )
     parser.add_argument("--max-iters", type=int, default=6, help="Max tool execution iterations.")
     args = parser.parse_args()
     await directory_crawler_interactive(model=args.model, max_tool_iterations=args.max_iters)
@@ -405,4 +466,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-

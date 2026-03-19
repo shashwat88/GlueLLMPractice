@@ -17,10 +17,11 @@ from typing import Any, TypedDict
 
 import httpx
 
-
 SEC_COMPANY_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
-SEC_ARCHIVES_BASE = "https://www.sec.gov/Archives/edgar/data/{cik_int}/{accession_no_nodashes}/{primary_document}"
+SEC_ARCHIVES_BASE = (
+    "https://www.sec.gov/Archives/edgar/data/{cik_int}/{accession_no_nodashes}/{primary_document}"
+)
 
 DEFAULT_TIMEOUT_SECS = 20.0
 
@@ -61,7 +62,9 @@ def _sec_headers() -> dict[str, str]:
 
     SEC asks clients to identify themselves with a descriptive User-Agent.
     """
-    user_agent = os.getenv("GLUELLM_EDGAR_USER_AGENT", "gluellm-interview (contact: dev@example.com)")
+    user_agent = os.getenv(
+        "GLUELLM_EDGAR_USER_AGENT", "gluellm-interview (contact: dev@example.com)"
+    )
     return {"User-Agent": user_agent, "Accept-Encoding": "gzip"}
 
 
@@ -177,7 +180,9 @@ def list_recent_filings(company_query: str, limit: int = 5) -> list[FilingMeta]:
         form_list = recent.get("form", []) or []
         primary_doc_list = recent.get("primaryDocument", []) or []
 
-        for accession, filing_date, form, primary_doc in zip(accession_list, filing_date_list, form_list, primary_doc_list, strict=False):
+        for accession, filing_date, form, primary_doc in zip(
+            accession_list, filing_date_list, form_list, primary_doc_list, strict=False
+        ):
             if len(filings) >= limit:
                 return filings
             accession_no_nodashes = re.sub(r"-", "", str(accession))
@@ -236,4 +241,3 @@ def fetch_filing_text(
         url=url,
         text=text,
     )
-

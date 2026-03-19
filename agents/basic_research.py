@@ -14,15 +14,17 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-from typing import Any
-
-from pydantic import BaseModel, Field
+import uuid
 
 from gluellm.models.agent import Agent
 from gluellm.models.prompt import SystemPrompt
+from pydantic import BaseModel, Field
 
-from tools.search_tools import search_and_summarize
+from core.logging_config import get_logger, setup_logging
 from core.workflow_wrappers import run_reflection_workflow_parsed
+from tools.search_tools import search_and_summarize
+
+logger = get_logger(__name__)
 
 
 class ResearchSource(BaseModel):
@@ -75,7 +77,7 @@ def _build_generator_agent(*, model: str, max_tool_iterations: int) -> Agent:
         '  "cannot_answer_reason": string|null\n'
         "}\n"
         "Rules:\n"
-        "- If can_answer=false: summary must be \"\", key_points must be [], sources must be [], and cannot_answer_reason must be non-empty.\n"
+        '- If can_answer=false: summary must be "", key_points must be [], sources must be [], and cannot_answer_reason must be non-empty.\n'
         "- If can_answer=true: summary must be non-empty, key_points must be non-empty, and sources must be non-empty.\n"
         "- Set `query` to the latest user question."
     )
@@ -121,6 +123,13 @@ async def _answer_with_workflow(
     history: list[tuple[str, str]],
 ) -> ResearchResponse:
     """Answer one research question using ReflectionWorkflow and parse strict JSON."""
+    turn_id = uuid.uuid4().hex[:8]
+    logger.info(
+        "research.turn_start turn_id=%s question_len=%s history_turns=%s",
+        turn_id,
+        len(question),
+        len(history),
+    )
     generator = _build_generator_agent(model=model, max_tool_iterations=max_tool_iterations)
     reflector = _build_reflector_agent(model=model)
     history_text = _build_conversation_history(history)
@@ -149,8 +158,20 @@ async def _answer_with_workflow(
         max_reflections=2,
         on_parse_error=_on_parse_error,
     )
+    logger.info(
+        "research.turn_parsed turn_id=%s can_answer=%s sources=%s summary_len=%s",
+        turn_id,
+        parsed.can_answer,
+        len(parsed.sources),
+        len(parsed.summary),
+    )
 
     if parsed.can_answer and not parsed.sources:
+        logger.info(
+            "research.evidence_guard_flip turn_id=%s reason=%s",
+            turn_id,
+            "can_answer_true_but_sources_empty",
+        )
         return ResearchResponse(
             can_answer=False,
             query=question,
@@ -167,10 +188,12 @@ async def basic_research_interactive(*, model: str, max_tool_iterations: int) ->
     history: list[tuple[str, str]] = []
     query = input("Research query (or type 'quit' to exit): ").strip()
     if _is_quit(query):
+        logger.info("cli.quit agent=basic_research stage=initial_prompt")
         return
     while not query:
         query = input("Query cannot be empty. Research query (or 'quit'): ").strip()
         if _is_quit(query):
+            logger.info("cli.quit agent=basic_research stage=initial_prompt_empty")
             return
 
     while True:
@@ -181,6 +204,7 @@ async def basic_research_interactive(*, model: str, max_tool_iterations: int) ->
             question=question,
             history=history,
         )
+        logger.info("Research Q&A: can_answer=%s query=%r", response.can_answer, question)
 
         if response.can_answer:
             print("\nSummary\n" + "-" * 40)
@@ -196,20 +220,26 @@ async def basic_research_interactive(*, model: str, max_tool_iterations: int) ->
             reason = response.cannot_answer_reason or "No relevant sources found."
             print("\nI cannot answer that question based on the available Wikipedia evidence.")
             print("Reason: " + reason)
+            logger.info("Research cannot_answer_reason=%r", reason)
 
         assistant_text = response.summary if response.can_answer else f"Cannot answer: {reason}"
         history.append((question, assistant_text))
 
         follow_up = input("\nFollow-up (or type 'quit' to exit): ").strip()
         if _is_quit(follow_up):
+            logger.info("cli.quit agent=basic_research stage=follow_up")
             return
         query = follow_up
 
 
 async def main() -> None:
     """CLI entrypoint for the basic research agent."""
+    setup_logging()
+    logger.info("CLI start: basic_research")
     parser = argparse.ArgumentParser(description="Basic research agent with Wikipedia tools.")
-    parser.add_argument("--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string.")
+    parser.add_argument(
+        "--model", type=str, default="openai:gpt-4o-mini", help="GlueLLM model string."
+    )
     parser.add_argument("--max-iters", type=int, default=6, help="Max tool execution iterations.")
     args = parser.parse_args()
 
@@ -218,4 +248,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
