@@ -207,6 +207,58 @@ Run unit tests with:
 pytest
 ```
 
+## Docker
+
+### 1) Prepare env file
+
+Create a local `.env` from the template:
+
+```bash
+cp .env.example .env
+```
+
+Fill in the keys you need (for example `OPENAI_API_KEY`, `EODHD_API_KEY`).
+
+### 2) Build image with Compose
+
+```bash
+docker compose build
+```
+
+### 3) Run agents (utility-image style)
+
+The container is intentionally generic. Pass the full Python module command each run:
+
+```bash
+docker compose run --rm app python -m agents.basic_research
+```
+
+More examples:
+
+```bash
+docker compose run --rm app python -m agents.rock_paper_scissors --rounds 5
+docker compose run --rm app python -m agents.poem_loop --topic "winter sunrise" --threshold 8 --max-iters 10
+docker compose run --rm app python -m agents.sec_research
+docker compose run --rm app python -m agents.directory_crawler
+docker compose run --rm app python -m agents.eodhd_stock_agent
+```
+
+Notes:
+- Compose enables TTY/stdin for interactive agents automatically.
+- Source is mounted into the container (`.:/app`) for fast local iteration.
+- Logs are written under `logs/` (or your configured `PROJECT_LOG_DIR`).
+
+### Optional hardening
+
+For reproducible dependency resolution across environments, you can introduce a lockfile workflow with `uv`:
+
+```bash
+uv lock
+uv sync --frozen
+```
+
+You can then update the Docker build to install from the lockfile in a later pass.
+
 Testing notes:
 - Tests mock external HTTP calls (SEC + Wikipedia) so you don’t need API keys to run the test suite.
 - The agent loop tests stub the LLM responses to validate termination and fallback behavior.

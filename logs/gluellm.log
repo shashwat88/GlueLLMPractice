@@ -1,0 +1,258 @@
+2026-03-20 04:56:33 | INFO     | gluellm.observability.logging_config | [N/A] Logging configured: console=disabled, file=DEBUG, file_path=/app/logs/gluellm.log, json_format=False
+2026-03-20 04:56:33 | DEBUG    | gluellm.runtime.shutdown | [N/A] Registered shutdown callback: close_providers
+2026-03-20 04:56:33 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 04:56:33 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 04:56:33 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 04:56:33 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 04:56:33 | INFO     | gluellm.api | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] Starting completion request: correlation_id=e6432bb3-52b1-4de1-9714-fe1b2ec8ff61, message_length=452
+2026-03-20 04:56:33 | DEBUG    | gluellm.api | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 04:56:33 | DEBUG    | gluellm.api | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] Tool execution iteration 1/1
+2026-03-20 04:56:33 | DEBUG    | gluellm.rate_limiting.rate_limiter | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] Created rate limiter: key=global:openai, requests_per_minute=60, backend=memory, algorithm=sliding_window
+2026-03-20 04:56:33 | DEBUG    | gluellm.rate_limiting.rate_limiter | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] Rate limit permit acquired: key=global:openai
+2026-03-20 04:56:33 | DEBUG    | gluellm.api | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=e6432bb3-52b1-4de1-9714-fe1b2ec8ff61
+2026-03-20 04:56:33 | ERROR    | gluellm.api | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] LLM call failed after 0.000s: model=openai:gpt-4o-mini, error=LLM error (MissingApiKeyError): [openai] No openai API key provided. Please provide it in the config or set the OPENAI_API_KEY environment variable., error_type=LLMError, cause_chain=MissingApiKeyError, correlation_id=e6432bb3-52b1-4de1-9714-fe1b2ec8ff61
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/gluellm/api.py", line 1451, in _safe_llm_call
+    provider, model_id = _provider_cache.get_provider(model, api_key)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/gluellm/api.py", line 359, in get_provider
+    self._providers[cache_key] = AnyLLM.create(
+                                 ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 160, in create
+    return cls._create_provider(provider, api_key=api_key, api_base=api_base, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 215, in _create_provider
+    return provider_class(api_key=api_key, api_base=api_base, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 110, in __init__
+    api_key=self._verify_and_set_api_key(api_key),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 127, in _verify_and_set_api_key
+    raise MissingApiKeyError(self.PROVIDER_NAME, self.ENV_API_KEY_NAME)
+any_llm.exceptions.MissingApiKeyError: [openai] No openai API key provided. Please provide it in the config or set the OPENAI_API_KEY environment variable.
+2026-03-20 04:56:33 | ERROR    | gluellm.api | [e6432bb3-52b1-4de1-9714-fe1b2ec8ff61] LLM call failed on iteration 1/1: LLM error (MissingApiKeyError): [openai] No openai API key provided. Please provide it in the config or set the OPENAI_API_KEY environment variable., error_type=LLMError, cause_chain=LLMError -> MissingApiKeyError
+2026-03-20 04:58:13 | INFO     | gluellm.observability.logging_config | [N/A] Logging configured: console=disabled, file=DEBUG, file_path=/app/logs/gluellm.log, json_format=False
+2026-03-20 04:58:13 | DEBUG    | gluellm.runtime.shutdown | [N/A] Registered shutdown callback: close_providers
+2026-03-20 04:58:13 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 04:58:13 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 04:58:13 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 04:58:13 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 04:58:13 | INFO     | gluellm.api | [ba29b066-9ddc-4946-8d2b-429d4591880b] Starting completion request: correlation_id=ba29b066-9ddc-4946-8d2b-429d4591880b, message_length=452
+2026-03-20 04:58:13 | DEBUG    | gluellm.api | [ba29b066-9ddc-4946-8d2b-429d4591880b] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 04:58:13 | DEBUG    | gluellm.api | [ba29b066-9ddc-4946-8d2b-429d4591880b] Tool execution iteration 1/1
+2026-03-20 04:58:13 | DEBUG    | gluellm.rate_limiting.rate_limiter | [ba29b066-9ddc-4946-8d2b-429d4591880b] Created rate limiter: key=global:openai, requests_per_minute=60, backend=memory, algorithm=sliding_window
+2026-03-20 04:58:13 | DEBUG    | gluellm.rate_limiting.rate_limiter | [ba29b066-9ddc-4946-8d2b-429d4591880b] Rate limit permit acquired: key=global:openai
+2026-03-20 04:58:13 | DEBUG    | gluellm.api | [ba29b066-9ddc-4946-8d2b-429d4591880b] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=ba29b066-9ddc-4946-8d2b-429d4591880b
+2026-03-20 04:58:13 | ERROR    | gluellm.api | [ba29b066-9ddc-4946-8d2b-429d4591880b] LLM call failed after 0.000s: model=openai:gpt-4o-mini, error=LLM error (MissingApiKeyError): [openai] No openai API key provided. Please provide it in the config or set the OPENAI_API_KEY environment variable., error_type=LLMError, cause_chain=MissingApiKeyError, correlation_id=ba29b066-9ddc-4946-8d2b-429d4591880b
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/gluellm/api.py", line 1451, in _safe_llm_call
+    provider, model_id = _provider_cache.get_provider(model, api_key)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/gluellm/api.py", line 359, in get_provider
+    self._providers[cache_key] = AnyLLM.create(
+                                 ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 160, in create
+    return cls._create_provider(provider, api_key=api_key, api_base=api_base, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 215, in _create_provider
+    return provider_class(api_key=api_key, api_base=api_base, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 110, in __init__
+    api_key=self._verify_and_set_api_key(api_key),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/any_llm/any_llm.py", line 127, in _verify_and_set_api_key
+    raise MissingApiKeyError(self.PROVIDER_NAME, self.ENV_API_KEY_NAME)
+any_llm.exceptions.MissingApiKeyError: [openai] No openai API key provided. Please provide it in the config or set the OPENAI_API_KEY environment variable.
+2026-03-20 04:58:13 | ERROR    | gluellm.api | [ba29b066-9ddc-4946-8d2b-429d4591880b] LLM call failed on iteration 1/1: LLM error (MissingApiKeyError): [openai] No openai API key provided. Please provide it in the config or set the OPENAI_API_KEY environment variable., error_type=LLMError, cause_chain=LLMError -> MissingApiKeyError
+2026-03-20 05:08:17 | INFO     | gluellm.observability.logging_config | [N/A] Logging configured: console=disabled, file=DEBUG, file_path=/app/logs/gluellm.log, json_format=False
+2026-03-20 05:08:17 | DEBUG    | gluellm.runtime.shutdown | [N/A] Registered shutdown callback: close_providers
+2026-03-20 05:08:17 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 05:08:17 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 05:08:17 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 05:08:17 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 05:08:17 | INFO     | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Starting completion request: correlation_id=249404eb-0517-430c-8e07-167cdffce241, message_length=452
+2026-03-20 05:08:17 | DEBUG    | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:17 | DEBUG    | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Tool execution iteration 1/1
+2026-03-20 05:08:17 | DEBUG    | gluellm.rate_limiting.rate_limiter | [249404eb-0517-430c-8e07-167cdffce241] Created rate limiter: key=global:openai, requests_per_minute=60, backend=memory, algorithm=sliding_window
+2026-03-20 05:08:17 | DEBUG    | gluellm.rate_limiting.rate_limiter | [249404eb-0517-430c-8e07-167cdffce241] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:17 | DEBUG    | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=249404eb-0517-430c-8e07-167cdffce241
+2026-03-20 05:08:19 | INFO     | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] LLM call completed: model=openai:gpt-4o-mini, latency=1.831s, tokens=148 (prompt=147, completion=1), cost=$0.000023, correlation_id=249404eb-0517-430c-8e07-167cdffce241
+2026-03-20 05:08:19 | DEBUG    | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:19 | INFO     | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Tool execution completed: total_tool_calls=0, final_response_length=4
+2026-03-20 05:08:19 | DEBUG    | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Token usage: {'prompt': 147, 'completion': 1, 'total': 148}
+2026-03-20 05:08:19 | DEBUG    | gluellm.runtime.shutdown | [249404eb-0517-430c-8e07-167cdffce241] Registered shutdown callback: _print_summary
+2026-03-20 05:08:19 | DEBUG    | gluellm.api | [249404eb-0517-430c-8e07-167cdffce241] Cost calculated: $0.000023 for 147+1 tokens (model=openai:gpt-4o-mini, correlation_id=249404eb-0517-430c-8e07-167cdffce241)
+2026-03-20 05:08:19 | INFO     | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Starting completion request: correlation_id=8a478338-7303-480d-a6ee-83af5aee960c, message_length=484
+2026-03-20 05:08:19 | DEBUG    | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:19 | DEBUG    | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Tool execution iteration 1/1
+2026-03-20 05:08:19 | DEBUG    | gluellm.rate_limiting.rate_limiter | [8a478338-7303-480d-a6ee-83af5aee960c] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:19 | DEBUG    | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=8a478338-7303-480d-a6ee-83af5aee960c
+2026-03-20 05:08:20 | INFO     | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] LLM call completed: model=openai:gpt-4o-mini, latency=1.500s, tokens=160 (prompt=158, completion=2), cost=$0.000025, correlation_id=8a478338-7303-480d-a6ee-83af5aee960c
+2026-03-20 05:08:20 | DEBUG    | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:20 | INFO     | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Tool execution completed: total_tool_calls=0, final_response_length=8
+2026-03-20 05:08:20 | DEBUG    | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Token usage: {'prompt': 158, 'completion': 2, 'total': 160}
+2026-03-20 05:08:20 | DEBUG    | gluellm.api | [8a478338-7303-480d-a6ee-83af5aee960c] Cost calculated: $0.000025 for 158+2 tokens (model=openai:gpt-4o-mini, correlation_id=8a478338-7303-480d-a6ee-83af5aee960c)
+2026-03-20 05:08:20 | INFO     | gluellm.workflows._base | [N/A] Workflow internal execution completed: iterations=1, output_length=54
+2026-03-20 05:08:20 | DEBUG    | gluellm.workflows._base | [N/A] Post-workflow hooks completed: output_length=54
+2026-03-20 05:08:20 | INFO     | gluellm.workflows._base | [N/A] Workflow execution completed: type=RoundRobinWorkflow, duration=3.357s, iterations=1
+2026-03-20 05:08:20 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 05:08:20 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 05:08:20 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 05:08:20 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 05:08:20 | INFO     | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Starting completion request: correlation_id=2c2cb863-4b14-472c-80cf-e652dadb561d, message_length=452
+2026-03-20 05:08:20 | DEBUG    | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:20 | DEBUG    | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Tool execution iteration 1/1
+2026-03-20 05:08:20 | DEBUG    | gluellm.rate_limiting.rate_limiter | [2c2cb863-4b14-472c-80cf-e652dadb561d] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:20 | DEBUG    | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=2c2cb863-4b14-472c-80cf-e652dadb561d
+2026-03-20 05:08:21 | INFO     | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] LLM call completed: model=openai:gpt-4o-mini, latency=1.038s, tokens=148 (prompt=147, completion=1), cost=$0.000023, correlation_id=2c2cb863-4b14-472c-80cf-e652dadb561d
+2026-03-20 05:08:21 | DEBUG    | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:21 | INFO     | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Tool execution completed: total_tool_calls=0, final_response_length=4
+2026-03-20 05:08:21 | DEBUG    | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Token usage: {'prompt': 147, 'completion': 1, 'total': 148}
+2026-03-20 05:08:21 | DEBUG    | gluellm.api | [2c2cb863-4b14-472c-80cf-e652dadb561d] Cost calculated: $0.000023 for 147+1 tokens (model=openai:gpt-4o-mini, correlation_id=2c2cb863-4b14-472c-80cf-e652dadb561d)
+2026-03-20 05:08:22 | INFO     | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Starting completion request: correlation_id=26f6c5e5-547a-4cd2-862e-57c5db561924, message_length=484
+2026-03-20 05:08:22 | DEBUG    | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:22 | DEBUG    | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Tool execution iteration 1/1
+2026-03-20 05:08:22 | DEBUG    | gluellm.rate_limiting.rate_limiter | [26f6c5e5-547a-4cd2-862e-57c5db561924] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:22 | DEBUG    | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=26f6c5e5-547a-4cd2-862e-57c5db561924
+2026-03-20 05:08:23 | INFO     | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] LLM call completed: model=openai:gpt-4o-mini, latency=1.269s, tokens=159 (prompt=158, completion=1), cost=$0.000024, correlation_id=26f6c5e5-547a-4cd2-862e-57c5db561924
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:23 | INFO     | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Tool execution completed: total_tool_calls=0, final_response_length=5
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Token usage: {'prompt': 158, 'completion': 1, 'total': 159}
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [26f6c5e5-547a-4cd2-862e-57c5db561924] Cost calculated: $0.000024 for 158+1 tokens (model=openai:gpt-4o-mini, correlation_id=26f6c5e5-547a-4cd2-862e-57c5db561924)
+2026-03-20 05:08:23 | INFO     | gluellm.workflows._base | [N/A] Workflow internal execution completed: iterations=1, output_length=51
+2026-03-20 05:08:23 | DEBUG    | gluellm.workflows._base | [N/A] Post-workflow hooks completed: output_length=51
+2026-03-20 05:08:23 | INFO     | gluellm.workflows._base | [N/A] Workflow execution completed: type=RoundRobinWorkflow, duration=2.316s, iterations=1
+2026-03-20 05:08:23 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 05:08:23 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 05:08:23 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 05:08:23 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 05:08:23 | INFO     | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Starting completion request: correlation_id=52d0f2f4-3239-4fd7-a3f3-1d10433fe67d, message_length=452
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Tool execution iteration 1/1
+2026-03-20 05:08:23 | DEBUG    | gluellm.rate_limiting.rate_limiter | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=52d0f2f4-3239-4fd7-a3f3-1d10433fe67d
+2026-03-20 05:08:23 | INFO     | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] LLM call completed: model=openai:gpt-4o-mini, latency=0.427s, tokens=149 (prompt=147, completion=2), cost=$0.000023, correlation_id=52d0f2f4-3239-4fd7-a3f3-1d10433fe67d
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:23 | INFO     | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Tool execution completed: total_tool_calls=0, final_response_length=8
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Token usage: {'prompt': 147, 'completion': 2, 'total': 149}
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [52d0f2f4-3239-4fd7-a3f3-1d10433fe67d] Cost calculated: $0.000023 for 147+2 tokens (model=openai:gpt-4o-mini, correlation_id=52d0f2f4-3239-4fd7-a3f3-1d10433fe67d)
+2026-03-20 05:08:23 | INFO     | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Starting completion request: correlation_id=44d3d297-0674-4029-8b0b-37070f8408ce, message_length=492
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Tool execution iteration 1/1
+2026-03-20 05:08:23 | DEBUG    | gluellm.rate_limiting.rate_limiter | [44d3d297-0674-4029-8b0b-37070f8408ce] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:23 | DEBUG    | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=44d3d297-0674-4029-8b0b-37070f8408ce
+2026-03-20 05:08:24 | INFO     | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] LLM call completed: model=openai:gpt-4o-mini, latency=1.244s, tokens=160 (prompt=159, completion=1), cost=$0.000024, correlation_id=44d3d297-0674-4029-8b0b-37070f8408ce
+2026-03-20 05:08:24 | DEBUG    | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:24 | INFO     | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Tool execution completed: total_tool_calls=0, final_response_length=4
+2026-03-20 05:08:24 | DEBUG    | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Token usage: {'prompt': 159, 'completion': 1, 'total': 160}
+2026-03-20 05:08:24 | DEBUG    | gluellm.api | [44d3d297-0674-4029-8b0b-37070f8408ce] Cost calculated: $0.000024 for 159+1 tokens (model=openai:gpt-4o-mini, correlation_id=44d3d297-0674-4029-8b0b-37070f8408ce)
+2026-03-20 05:08:24 | INFO     | gluellm.workflows._base | [N/A] Workflow internal execution completed: iterations=1, output_length=54
+2026-03-20 05:08:24 | DEBUG    | gluellm.workflows._base | [N/A] Post-workflow hooks completed: output_length=54
+2026-03-20 05:08:24 | INFO     | gluellm.workflows._base | [N/A] Workflow execution completed: type=RoundRobinWorkflow, duration=1.681s, iterations=1
+2026-03-20 05:08:24 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 05:08:24 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 05:08:24 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 05:08:24 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 05:08:24 | INFO     | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Starting completion request: correlation_id=e4fff47b-a972-4c7b-8e36-b7d5861ec946, message_length=452
+2026-03-20 05:08:24 | DEBUG    | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:24 | DEBUG    | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Tool execution iteration 1/1
+2026-03-20 05:08:24 | DEBUG    | gluellm.rate_limiting.rate_limiter | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:24 | DEBUG    | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=e4fff47b-a972-4c7b-8e36-b7d5861ec946
+2026-03-20 05:08:26 | INFO     | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] LLM call completed: model=openai:gpt-4o-mini, latency=1.337s, tokens=149 (prompt=147, completion=2), cost=$0.000023, correlation_id=e4fff47b-a972-4c7b-8e36-b7d5861ec946
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:26 | INFO     | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Tool execution completed: total_tool_calls=0, final_response_length=8
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Token usage: {'prompt': 147, 'completion': 2, 'total': 149}
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [e4fff47b-a972-4c7b-8e36-b7d5861ec946] Cost calculated: $0.000023 for 147+2 tokens (model=openai:gpt-4o-mini, correlation_id=e4fff47b-a972-4c7b-8e36-b7d5861ec946)
+2026-03-20 05:08:26 | INFO     | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Starting completion request: correlation_id=748ef6be-5b54-4215-acf7-eed4f1b334e7, message_length=492
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Tool execution iteration 1/1
+2026-03-20 05:08:26 | DEBUG    | gluellm.rate_limiting.rate_limiter | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=748ef6be-5b54-4215-acf7-eed4f1b334e7
+2026-03-20 05:08:26 | INFO     | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] LLM call completed: model=openai:gpt-4o-mini, latency=0.614s, tokens=160 (prompt=159, completion=1), cost=$0.000024, correlation_id=748ef6be-5b54-4215-acf7-eed4f1b334e7
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:26 | INFO     | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Tool execution completed: total_tool_calls=0, final_response_length=4
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Token usage: {'prompt': 159, 'completion': 1, 'total': 160}
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [748ef6be-5b54-4215-acf7-eed4f1b334e7] Cost calculated: $0.000024 for 159+1 tokens (model=openai:gpt-4o-mini, correlation_id=748ef6be-5b54-4215-acf7-eed4f1b334e7)
+2026-03-20 05:08:26 | INFO     | gluellm.workflows._base | [N/A] Workflow internal execution completed: iterations=1, output_length=54
+2026-03-20 05:08:26 | DEBUG    | gluellm.workflows._base | [N/A] Post-workflow hooks completed: output_length=54
+2026-03-20 05:08:26 | INFO     | gluellm.workflows._base | [N/A] Workflow execution completed: type=RoundRobinWorkflow, duration=1.960s, iterations=1
+2026-03-20 05:08:26 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=RoundRobinWorkflow, input_length=137
+2026-03-20 05:08:26 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 05:08:26 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=137
+2026-03-20 05:08:26 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: RoundRobinWorkflow
+2026-03-20 05:08:26 | INFO     | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Starting completion request: correlation_id=937c843a-2405-4ac5-8b22-3130131c8215, message_length=452
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Tool execution iteration 1/1
+2026-03-20 05:08:26 | DEBUG    | gluellm.rate_limiting.rate_limiter | [937c843a-2405-4ac5-8b22-3130131c8215] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:26 | DEBUG    | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=937c843a-2405-4ac5-8b22-3130131c8215
+2026-03-20 05:08:27 | INFO     | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] LLM call completed: model=openai:gpt-4o-mini, latency=0.502s, tokens=149 (prompt=147, completion=2), cost=$0.000023, correlation_id=937c843a-2405-4ac5-8b22-3130131c8215
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:27 | INFO     | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Tool execution completed: total_tool_calls=0, final_response_length=8
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Token usage: {'prompt': 147, 'completion': 2, 'total': 149}
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [937c843a-2405-4ac5-8b22-3130131c8215] Cost calculated: $0.000023 for 147+2 tokens (model=openai:gpt-4o-mini, correlation_id=937c843a-2405-4ac5-8b22-3130131c8215)
+2026-03-20 05:08:27 | INFO     | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Starting completion request: correlation_id=6161bcf6-ec8e-4ce1-936b-f2d90fa1f196, message_length=492
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Tool execution iteration 1/1
+2026-03-20 05:08:27 | DEBUG    | gluellm.rate_limiting.rate_limiter | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Rate limit permit acquired: key=global:openai
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=6161bcf6-ec8e-4ce1-936b-f2d90fa1f196
+2026-03-20 05:08:27 | INFO     | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] LLM call completed: model=openai:gpt-4o-mini, latency=0.403s, tokens=160 (prompt=159, completion=1), cost=$0.000024, correlation_id=6161bcf6-ec8e-4ce1-936b-f2d90fa1f196
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:08:27 | INFO     | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Tool execution completed: total_tool_calls=0, final_response_length=4
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Token usage: {'prompt': 159, 'completion': 1, 'total': 160}
+2026-03-20 05:08:27 | DEBUG    | gluellm.api | [6161bcf6-ec8e-4ce1-936b-f2d90fa1f196] Cost calculated: $0.000024 for 159+1 tokens (model=openai:gpt-4o-mini, correlation_id=6161bcf6-ec8e-4ce1-936b-f2d90fa1f196)
+2026-03-20 05:08:27 | INFO     | gluellm.workflows._base | [N/A] Workflow internal execution completed: iterations=1, output_length=54
+2026-03-20 05:08:27 | DEBUG    | gluellm.workflows._base | [N/A] Post-workflow hooks completed: output_length=54
+2026-03-20 05:08:27 | INFO     | gluellm.workflows._base | [N/A] Workflow execution completed: type=RoundRobinWorkflow, duration=0.914s, iterations=1
+2026-03-20 05:10:13 | INFO     | gluellm.observability.logging_config | [N/A] Logging configured: console=disabled, file=DEBUG, file_path=/app/logs/gluellm.log, json_format=False
+2026-03-20 05:10:13 | DEBUG    | gluellm.runtime.shutdown | [N/A] Registered shutdown callback: close_providers
+2026-03-20 05:10:30 | INFO     | gluellm.workflows._base | [N/A] Starting workflow execution: type=ReflectionWorkflow, input_length=104
+2026-03-20 05:10:30 | DEBUG    | gluellm.workflows._base | [N/A] Workflow hooks: pre=0, post=0
+2026-03-20 05:10:30 | DEBUG    | gluellm.workflows._base | [N/A] Pre-workflow hooks completed: input_length=104
+2026-03-20 05:10:30 | DEBUG    | gluellm.workflows._base | [N/A] Executing internal workflow logic: ReflectionWorkflow
+2026-03-20 05:10:30 | INFO     | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Starting completion request: correlation_id=848ec301-20e2-432e-86e7-26313108f965, message_length=104
+2026-03-20 05:10:30 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Starting tool execution loop: max_iterations=6, tools_available=1, tool_mode=standard
+2026-03-20 05:10:30 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Tool execution iteration 1/6
+2026-03-20 05:10:30 | DEBUG    | gluellm.rate_limiting.rate_limiter | [848ec301-20e2-432e-86e7-26313108f965] Created rate limiter: key=global:openai, requests_per_minute=60, backend=memory, algorithm=sliding_window
+2026-03-20 05:10:30 | DEBUG    | gluellm.rate_limiting.rate_limiter | [848ec301-20e2-432e-86e7-26313108f965] Rate limit permit acquired: key=global:openai
+2026-03-20 05:10:30 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=True, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=848ec301-20e2-432e-86e7-26313108f965
+2026-03-20 05:10:31 | INFO     | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] LLM call completed: model=openai:gpt-4o-mini, latency=1.692s, tokens=286 (prompt=273, completion=13), cost=$0.000049, correlation_id=848ec301-20e2-432e-86e7-26313108f965
+2026-03-20 05:10:31 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Response metadata: finish_reason=tool_calls, has_tool_calls=True
+2026-03-20 05:10:31 | INFO     | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Iteration 1: Model requested 1 tool call(s)
+2026-03-20 05:10:32 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Tool execution iteration 2/6
+2026-03-20 05:10:32 | DEBUG    | gluellm.rate_limiting.rate_limiter | [848ec301-20e2-432e-86e7-26313108f965] Rate limit permit acquired: key=global:openai
+2026-03-20 05:10:32 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=True, response_format=None, message_count=4, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=848ec301-20e2-432e-86e7-26313108f965
+2026-03-20 05:10:33 | INFO     | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] LLM call completed: model=openai:gpt-4o-mini, latency=0.853s, tokens=458 (prompt=427, completion=31), cost=$0.000083, correlation_id=848ec301-20e2-432e-86e7-26313108f965
+2026-03-20 05:10:33 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:10:33 | INFO     | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Tool execution completed: total_tool_calls=1, final_response_length=106
+2026-03-20 05:10:33 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Token usage: {'prompt': 427, 'completion': 31, 'total': 458}
+2026-03-20 05:10:33 | DEBUG    | gluellm.runtime.shutdown | [848ec301-20e2-432e-86e7-26313108f965] Registered shutdown callback: _print_summary
+2026-03-20 05:10:33 | DEBUG    | gluellm.api | [848ec301-20e2-432e-86e7-26313108f965] Cost calculated: $0.000083 for 427+31 tokens (model=openai:gpt-4o-mini, correlation_id=848ec301-20e2-432e-86e7-26313108f965)
+2026-03-20 05:10:33 | INFO     | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Starting completion request: correlation_id=9d3fd5e6-358c-4a41-982e-d0920b61ff1b, message_length=457
+2026-03-20 05:10:33 | DEBUG    | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Starting tool execution loop: max_iterations=1, tools_available=0, tool_mode=standard
+2026-03-20 05:10:33 | DEBUG    | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Tool execution iteration 1/1
+2026-03-20 05:10:33 | DEBUG    | gluellm.rate_limiting.rate_limiter | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Rate limit permit acquired: key=global:openai
+2026-03-20 05:10:33 | DEBUG    | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=False, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=9d3fd5e6-358c-4a41-982e-d0920b61ff1b
+2026-03-20 05:10:34 | INFO     | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] LLM call completed: model=openai:gpt-4o-mini, latency=1.330s, tokens=186 (prompt=176, completion=10), cost=$0.000032, correlation_id=9d3fd5e6-358c-4a41-982e-d0920b61ff1b
+2026-03-20 05:10:34 | DEBUG    | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:10:34 | INFO     | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Tool execution completed: total_tool_calls=0, final_response_length=32
+2026-03-20 05:10:34 | DEBUG    | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Token usage: {'prompt': 176, 'completion': 10, 'total': 186}
+2026-03-20 05:10:34 | DEBUG    | gluellm.api | [9d3fd5e6-358c-4a41-982e-d0920b61ff1b] Cost calculated: $0.000032 for 176+10 tokens (model=openai:gpt-4o-mini, correlation_id=9d3fd5e6-358c-4a41-982e-d0920b61ff1b)
+2026-03-20 05:10:34 | INFO     | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Starting completion request: correlation_id=a26885aa-4842-40fc-8124-c206e0b4d477, message_length=342
+2026-03-20 05:10:34 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Starting tool execution loop: max_iterations=6, tools_available=1, tool_mode=standard
+2026-03-20 05:10:34 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Tool execution iteration 1/6
+2026-03-20 05:10:34 | DEBUG    | gluellm.rate_limiting.rate_limiter | [a26885aa-4842-40fc-8124-c206e0b4d477] Rate limit permit acquired: key=global:openai
+2026-03-20 05:10:34 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=True, response_format=None, message_count=2, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=a26885aa-4842-40fc-8124-c206e0b4d477
+2026-03-20 05:10:35 | INFO     | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] LLM call completed: model=openai:gpt-4o-mini, latency=0.768s, tokens=343 (prompt=330, completion=13), cost=$0.000057, correlation_id=a26885aa-4842-40fc-8124-c206e0b4d477
+2026-03-20 05:10:35 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Response metadata: finish_reason=tool_calls, has_tool_calls=True
+2026-03-20 05:10:35 | INFO     | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Iteration 1: Model requested 1 tool call(s)
+2026-03-20 05:10:35 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Tool execution iteration 2/6
+2026-03-20 05:10:35 | DEBUG    | gluellm.rate_limiting.rate_limiter | [a26885aa-4842-40fc-8124-c206e0b4d477] Rate limit permit acquired: key=global:openai
+2026-03-20 05:10:35 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Making LLM call: model=openai:gpt-4o-mini, stream=False, has_tools=True, response_format=None, message_count=4, request_timeout=60.0s, connect_timeout=10.0s, correlation_id=a26885aa-4842-40fc-8124-c206e0b4d477
+2026-03-20 05:10:36 | INFO     | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] LLM call completed: model=openai:gpt-4o-mini, latency=0.912s, tokens=515 (prompt=484, completion=31), cost=$0.000091, correlation_id=a26885aa-4842-40fc-8124-c206e0b4d477
+2026-03-20 05:10:36 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Response metadata: finish_reason=stop, has_tool_calls=False
+2026-03-20 05:10:36 | INFO     | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Tool execution completed: total_tool_calls=1, final_response_length=106
+2026-03-20 05:10:36 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Token usage: {'prompt': 484, 'completion': 31, 'total': 515}
+2026-03-20 05:10:36 | DEBUG    | gluellm.api | [a26885aa-4842-40fc-8124-c206e0b4d477] Cost calculated: $0.000091 for 484+31 tokens (model=openai:gpt-4o-mini, correlation_id=a26885aa-4842-40fc-8124-c206e0b4d477)
+2026-03-20 05:10:36 | INFO     | gluellm.workflows._base | [N/A] Workflow internal execution completed: iterations=2, output_length=106
+2026-03-20 05:10:36 | DEBUG    | gluellm.workflows._base | [N/A] Post-workflow hooks completed: output_length=106
+2026-03-20 05:10:36 | INFO     | gluellm.workflows._base | [N/A] Workflow execution completed: type=ReflectionWorkflow, duration=6.529s, iterations=2

@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gluellm-practice:latest
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GLUELLM_EDGAR_USER_AGENT: ${GLUELLM_EDGAR_USER_AGENT:-}
+      GLUELLM_LOG_DIR: ${GLUELLM_LOG_DIR:-/app/logs}
+      EODHD_API_KEY: ${EODHD_API_KEY:-}
+      WIKIPEDIA_USER_AGENT: ${WIKIPEDIA_USER_AGENT:-}
+      PROJECT_LOG_CONSOLE_OUTPUT: ${PROJECT_LOG_CONSOLE_OUTPUT:-true}
+      PROJECT_LOG_LEVEL: ${PROJECT_LOG_LEVEL:-INFO}
+      PROJECT_LOG_FILE_LEVEL: ${PROJECT_LOG_FILE_LEVEL:-DEBUG}
+      PROJECT_LOG_DIR: ${PROJECT_LOG_DIR:-logs}
+      PROJECT_LOG_FILE_NAME: ${PROJECT_LOG_FILE_NAME:-gluellm_practice.log}
+      PROJECT_LOG_JSON_FORMAT: ${PROJECT_LOG_JSON_FORMAT:-false}
+      PROJECT_LOG_MAX_BYTES: ${PROJECT_LOG_MAX_BYTES:-10485760}
+      PROJECT_LOG_BACKUP_COUNT: ${PROJECT_LOG_BACKUP_COUNT:-5}
+      PROJECT_DISABLE_LOGGING: ${PROJECT_DISABLE_LOGGING:-false}
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    command: ["python", "--version"]
