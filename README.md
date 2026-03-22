@@ -207,6 +207,34 @@ Run unit tests with:
 pytest
 ```
 
+## Evaluation (GlueLLM `EvalRecord` JSONL)
+
+The repo includes a small **per-agent eval harness** under `eval/`. It uses GlueLLM’s built-in recording (`gluellm.eval.enable_file_recording`) so each LLM call can be traced as JSON lines under `logs/eval_<agent>_<timestamp>.jsonl` (see `EvalRecord` in the SDK).
+
+### Live eval (calls your LLM provider)
+
+Requires `OPENAI_API_KEY` (or whatever your chosen `--model` provider needs) and optional `GLUELLM_LOG_DIR=/app/logs` in Docker.
+
+```bash
+uv run python -m eval.agents.rock_paper_scissors --dataset eval/data/rock_paper_scissors/move_validity.jsonl
+```
+
+This prints pass/fail per row and writes GlueLLM eval traces to `logs/`.
+
+### Offline eval (no API keys; deterministic checks)
+
+These load JSONL fixtures and print a summary:
+
+```bash
+uv run python -m eval.agents.poem_loop
+uv run python -m eval.agents.basic_research
+uv run python -m eval.agents.sec_research
+uv run python -m eval.agents.directory_crawler
+uv run python -m eval.agents.eodhd_stock_agent
+```
+
+Datasets live under `eval/data/<agent_name>/`. Adjust or extend those JSONL files as you refine metrics.
+
 ## Docker
 
 ### 1) Prepare env file

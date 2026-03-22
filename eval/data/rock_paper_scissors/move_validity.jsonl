@@ -1,0 +1,12 @@
+{"id": "rps_001", "prompt": "Round 1: reply with exactly one word — rock, paper, or scissors."}
+{"id": "rps_002", "prompt": "Choose your move for this round (rock, paper, or scissors only)."}
+{"id": "rps_003", "prompt": "What do you play? Answer with one word: rock, paper, or scissors."}
+{"id": "rps_004", "prompt": "Rock paper scissors — pick one word only."}
+{"id": "rps_005", "prompt": "Output only the move: rock, paper, or scissors. Nothing else."}
+{"id": "rps_006", "prompt": "Make a single choice: rock, paper, or scissors."}
+{"id": "rps_007", "prompt": "Your turn. Respond with rock, paper, or scissors."}
+{"id": "rps_008", "prompt": "Select rock, paper, or scissors (single word)."}
+{"id": "rps_009", "prompt": "Game on. One-word answer: rock, paper, or scissors?"}
+{"id": "rps_010", "prompt": "Pick wisely. Answer rock, paper, or scissors."}
+{"id": "rps_011", "prompt": "Round 2: only reply with rock, paper, or scissors."}
+{"id": "rps_012", "prompt": "Mandatory: respond using exactly one of: rock, paper, scissors."}

@@ -1,7 +1,7 @@
 ---
 description: Project Python style guide (type hints + Google docstrings)
 globs: "**/*.py"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Style Guide

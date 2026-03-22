@@ -1,0 +1,2 @@
+{"id": "br_001", "synthetic_answer": "Summary mentions Python programming. Sources: https://en.wikipedia.org/wiki/Python", "must_contain": ["Python", "wikipedia"]}
+{"id": "br_002", "synthetic_answer": "I cannot answer that question based on the available Wikipedia evidence.", "must_contain": ["cannot answer"]}

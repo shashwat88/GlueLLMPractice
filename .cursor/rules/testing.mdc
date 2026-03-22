@@ -1,7 +1,7 @@
 ---
 description: Testing guidance for pytest
 globs: "tests/**/*.py"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Testing Rule

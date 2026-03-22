@@ -32,7 +32,7 @@ addopts = "-q"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["agents*", "core*", "tools*"]
+include = ["agents*", "core*", "tools*", "eval*"]
 namespaces = false
 
 [tool.ruff]
