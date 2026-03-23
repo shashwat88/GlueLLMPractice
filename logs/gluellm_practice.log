@@ -1,0 +1,27 @@
+2026-03-23 10:54:57 | INFO     | gluellm_practice | Logging configured: console=disabled file=DEBUG path=/Users/shashwatsingh/Documents/GlueLLMPractice/logs/gluellm_practice.log json=False
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | Directory scan complete: root=/fake total_files=2 total_dirs=1 max_depth=2
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | dir.turn_start turn_id=7544518f question_len=22 history_turns=0
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | dir.turn_parsed turn_id=7544518f can_answer=True answer_len=25
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | Directory Q&A: can_answer=True question='How many Python files?'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | dir.turn_start turn_id=69c845b0 question_len=25 history_turns=1
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | dir.turn_parsed turn_id=69c845b0 can_answer=False answer_len=0
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | Directory Q&A: can_answer=False question='What is the largest file?'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | Directory cannot_answer_reason='Not enough information in the report.'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.directory_crawler | cli.quit agent=directory_crawler stage=follow_up
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.basic_research | research.turn_start turn_id=da017f69 question_len=11 history_turns=0
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.basic_research | research.turn_parsed turn_id=da017f69 can_answer=True sources=1 summary_len=38
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.basic_research | Research Q&A: can_answer=True query='What is AI?'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.basic_research | cli.quit agent=basic_research stage=follow_up
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.sec_research | sec.turn_start turn_id=4105dd92 question_len=17 history_turns=0
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.sec_research | sec.turn_parsed turn_id=4105dd92 can_answer=False citations=0 answer_len=0
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.sec_research | SEC Q&A: can_answer=False question='Some SEC question'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.sec_research | SEC cannot_answer_reason='No matching filings.'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.sec_research | cli.quit agent=sec_research stage=follow_up
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.eodhd_stock_agent | stock.turn_start turn_id=a9f50406 symbol=AAPL question_len=20 history_turns=0
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.eodhd_stock_agent | stock.turn_parsed turn_id=a9f50406 symbol=AAPL can_answer=False answer_len=0 returned_symbol=AAPL
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.eodhd_stock_agent | Stock Q&A: symbol=AAPL can_answer=False question='What is the weather?'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.eodhd_stock_agent | Stock cannot_answer_reason='Question is unrelated to real-time quote facts.'
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.eodhd_stock_agent | cli.quit agent=eodhd_stock_agent stage=follow_up
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.poem_loop | Starting poem workflow: topic='winter' threshold=8 max_iters=3 model=fake:model
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.poem_loop | Poem iteration=1 score=7
+2026-03-23 10:54:57 | INFO     | gluellm_practice.agents.poem_loop | Poem iteration=2 score=9

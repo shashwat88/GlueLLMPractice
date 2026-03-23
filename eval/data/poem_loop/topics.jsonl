@@ -1,3 +1,0 @@
-{"id": "poem_001", "sample_critic_feedback": "{\"score\": 8, \"strengths\": [], \"suggestions\": [], \"revised_poem_guidance\": \"ok\"}", "min_score": 8}
-{"id": "poem_002", "sample_critic_feedback": "score: 5", "min_score": 4}
-{"id": "poem_003", "sample_critic_feedback": "Here is the JSON: {\"score\": 9, \"strengths\": [\"a\"], \"suggestions\": [], \"revised_poem_guidance\": \"x\"}", "min_score": 8}

@@ -1,4 +1,4 @@
-"""GlueLLM evaluation harness: per-agent runners and shared recording helpers."""
+"""GlueLLM SDK-native eval recording utilities."""
 
 from __future__ import annotations
 

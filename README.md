@@ -207,33 +207,54 @@ Run unit tests with:
 pytest
 ```
 
-## Evaluation (GlueLLM `EvalRecord` JSONL)
+## Evaluation (SDK-native GlueLLM recording)
 
-The repo includes a small **per-agent eval harness** under `eval/`. It uses GlueLLM’s built-in recording (`gluellm.eval.enable_file_recording`) so each LLM call can be traced as JSON lines under `logs/eval_<agent>_<timestamp>.jsonl` (see `EvalRecord` in the SDK).
+This repo uses GlueLLM's official eval recording APIs directly (no custom eval framework):
 
-### Live eval (calls your LLM provider)
+- `gluellm.eval.JSONLFileStore`
+- `GlueLLM(..., eval_store=store)`
+- automatic `EvalRecord` JSONL rows on each `complete()` call
 
-Requires `OPENAI_API_KEY` (or whatever your chosen `--model` provider needs) and optional `GLUELLM_LOG_DIR=/app/logs` in Docker.
+### Run eval recording
 
-```bash
-uv run python -m eval.agents.rock_paper_scissors --dataset eval/data/rock_paper_scissors/move_validity.jsonl
-```
-
-This prints pass/fail per row and writes GlueLLM eval traces to `logs/`.
-
-### Offline eval (no API keys; deterministic checks)
-
-These load JSONL fixtures and print a summary:
+Requires provider env vars such as `OPENAI_API_KEY`.
 
 ```bash
-uv run python -m eval.agents.poem_loop
-uv run python -m eval.agents.basic_research
-uv run python -m eval.agents.sec_research
-uv run python -m eval.agents.directory_crawler
-uv run python -m eval.agents.eodhd_stock_agent
+uv run python -m eval.run_eval_recording
 ```
 
-Datasets live under `eval/data/<agent_name>/`. Adjust or extend those JSONL files as you refine metrics.
+Optional flags:
+
+```bash
+uv run python -m eval.run_eval_recording \
+  --model openai:gpt-4o-mini \
+  --output logs/eval_records.jsonl \
+  --prompt "What is 2 + 2?" \
+  --prompt "Explain deterministic algorithms in one sentence."
+```
+
+### Inspect recorded EvalRecord rows
+
+```bash
+python - <<'PY'
+import json
+from pathlib import Path
+
+path = Path("logs/eval_records.jsonl")
+for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    if not line.strip():
+        continue
+    rec = json.loads(line)
+    print(
+        f"{i}: id={rec.get('id')} success={rec.get('success')} "
+        f"latency_ms={rec.get('latency_ms')} cost={rec.get('estimated_cost_usd')}"
+    )
+    if i >= 5:
+        break
+PY
+```
+
+The runner also prints a compact preview (`id`, `latency_ms`, `estimated_cost_usd`, `success`) after recording completes.
 
 ## Docker
 
