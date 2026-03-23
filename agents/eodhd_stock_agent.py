@@ -127,6 +127,17 @@ async def _answer_with_workflow(
     history: list[tuple[str, str]],
 ) -> StockAnswer:
     """Answer one stock question using ReflectionWorkflow and parse strict JSON."""
+    if not model.strip():
+        raise ValueError("model must be non-empty")
+    if max_tool_iterations < 1:
+        raise ValueError("max_tool_iterations must be >= 1")
+    if not stock_symbol.strip():
+        raise ValueError("stock_symbol must be non-empty")
+    # Enforce the same normalization rules used by the interactive entrypoint.
+    stock_symbol = normalize_stock_symbol(stock_symbol)
+    if not question.strip():
+        raise ValueError("question must be non-empty")
+
     turn_id = uuid.uuid4().hex[:8]
     logger.info(
         "stock.turn_start turn_id=%s symbol=%s question_len=%s history_turns=%s",

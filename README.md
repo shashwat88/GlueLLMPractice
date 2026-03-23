@@ -245,13 +245,13 @@ This repo uses GlueLLM's official eval recording APIs directly (no custom eval f
 Requires provider env vars such as `OPENAI_API_KEY`.
 
 ```bash
-uv run python -m eval.run_eval_recording
+uv run python -m evals.run_eval_recording
 ```
 
 Optional flags:
 
 ```bash
-uv run python -m eval.run_eval_recording \
+uv run python -m evals.run_eval_recording \
   --model openai:gpt-4o-mini \
   --output logs/eval_records.jsonl \
   --prompt "What is 2 + 2?" \
@@ -280,6 +280,147 @@ PY
 ```
 
 The runner also prints a compact preview (`id`, `latency_ms`, `estimated_cost_usd`, `success`) after recording completes.
+
+## Part 5: Eval Dataset
+
+Building reliable agents requires a way to measure whether they are actually working. This section defines an example eval dataset structure included in this project, along with instructions for running evals against your agents.
+
+### 5.1 What Is an Eval Dataset?
+
+An eval dataset is a collection of input/expected-output pairs used to score agent behavior systematically. Rather than manually testing agents by hand, evals let you run a batch of known cases and measure pass rates, regressions, and quality trends over time.
+
+### 5.2 Dataset Format
+
+Eval cases are stored as JSON files in the `evals/` directory. Each file corresponds to one agent.
+
+Directory layout:
+
+```text
+evals/
+├── rock_paper_scissors.json
+├── poem_loop.json
+├── sec_research.json
+├── directory_crawler.json
+├── basic_research.json
+└── eodhd_stock_agent.json
+```
+
+Each file contains a list of eval cases with the following shape:
+
+```json
+{
+  "cases": [
+    {
+      "id": "unique-case-id",
+      "description": "Human-readable description of what this case tests",
+      "input": {},
+      "expected": {},
+      "tags": ["happy-path", "edge-case", "tool-use"]
+    }
+  ]
+}
+```
+
+### 5.3 Example: SEC Research Agent Evals
+
+File: `evals/sec_research.json`
+
+```json
+{
+  "cases": [
+    {
+      "id": "sec-001",
+      "description": "Retrieves annual filing style answer for Apple.",
+      "input": {
+        "query": "What was Apple's most recent annual filing?"
+      },
+      "expected": {
+        "form_type": "10-K",
+        "ticker": "AAPL",
+        "contains_keywords": ["annual", "10-k"]
+      },
+      "tags": ["happy-path", "tool-use"]
+    }
+  ]
+}
+```
+
+### 5.4 Example: Poem Loop Evals
+
+File: `evals/poem_loop.json`
+
+```json
+{
+  "cases": [
+    {
+      "id": "poem-001",
+      "description": "Loop terminates when threshold is reachable.",
+      "input": {
+        "topic": "autumn leaves",
+        "threshold": 8,
+        "max_iterations": 10
+      },
+      "expected": {
+        "loop_terminated": true,
+        "iterations_lte": 10
+      },
+      "tags": ["happy-path"]
+    }
+  ]
+}
+```
+
+### 5.5 Eval Runner
+
+`evals/runner.py`:
+
+- Loads all eval case files from `evals/*.json`
+- Runs each case against the corresponding agent
+- Scores each result against `expected` fields
+- Prints a summary report with pass/fail counts per agent
+
+Example output:
+
+```text
+========================================
+Eval Results
+========================================
+sec_research       3/3 passed  (100%)
+poem_loop          2/2 passed  (100%)
+directory_crawler  4/5 passed   (80%)  -- failures: dir-003
+basic_research     3/4 passed   (75%)  -- failures: research-002
+----------------------------------------
+Overall            12/14 passed (86%)
+========================================
+```
+
+### 5.6 Eval Coverage Requirements
+
+Each agent has a minimum of five eval cases covering the following tags:
+
+| Tag | Description |
+|---|---|
+| `happy-path` | Normal, expected input with a clean expected output |
+| `edge-case` | Unusual or boundary input (empty string, very large input, ambiguous query) |
+| `error-handling` | Input that should trigger a graceful failure or fallback |
+| `tool-use` | At least one case that verifies a tool path is exercised |
+| `regression` | A case added specifically after a bug was found and fixed |
+
+### 5.7 Running Evals
+
+```bash
+# Run all evals (live mode by default)
+python -m evals.runner
+
+# Run evals for a single agent
+python -m evals.runner --agent sec_research
+
+# Run only cases with a specific tag
+python -m evals.runner --tag edge-case
+
+# Deterministic local run without external APIs
+python -m evals.runner --mocked
+```
 
 ## Docker
 

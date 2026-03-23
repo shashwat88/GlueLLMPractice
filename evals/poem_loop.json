@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "poem-001",
+      "description": "Loop terminates when threshold is reachable.",
+      "input": { "topic": "autumn leaves", "threshold": 8, "max_iterations": 10 },
+      "expected": { "loop_terminated": true, "iterations_lte": 10 },
+      "tags": ["happy-path"]
+    },
+    {
+      "id": "poem-002",
+      "description": "Edge case: strict threshold still respects cap.",
+      "input": { "topic": "abstract noise", "threshold": 10, "max_iterations": 5 },
+      "expected": { "loop_terminated": true, "iterations_lte": 5 },
+      "tags": ["edge-case"]
+    },
+    {
+      "id": "poem-003",
+      "description": "Error-handling for invalid threshold value.",
+      "input": { "topic": "rain", "threshold": 11, "max_iterations": 3 },
+      "expected": { "error_handled": true },
+      "tags": ["error-handling"]
+    },
+    {
+      "id": "poem-004",
+      "description": "Workflow tool/executor path is exercised.",
+      "input": { "topic": "city dawn", "threshold": 7, "max_iterations": 4 },
+      "expected": { "loop_terminated": true, "iterations_lte": 4, "tool_signal": true },
+      "tags": ["tool-use"]
+    },
+    {
+      "id": "poem-005",
+      "description": "Regression check: one-iteration cap remains bounded.",
+      "input": { "topic": "minimalism", "threshold": 9, "max_iterations": 1 },
+      "expected": { "iterations_lte": 1, "loop_terminated": true },
+      "tags": ["regression"]
+    }
+  ]
+}
+

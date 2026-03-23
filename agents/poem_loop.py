@@ -139,6 +139,15 @@ async def run_poem_workflow(
     model: str,
 ) -> tuple[str, int]:
     """Run poem generation + critique refinement using GlueLLM workflow."""
+    if not topic.strip():
+        raise ValueError("topic must be non-empty")
+    if not 0 <= threshold <= 10:
+        raise ValueError("threshold must be between 0 and 10")
+    if max_iters < 1:
+        raise ValueError("max_iters must be >= 1")
+    if not model.strip():
+        raise ValueError("model must be non-empty")
+
     logger.info(
         "Starting poem workflow: topic=%r threshold=%s max_iters=%s model=%s",
         topic,

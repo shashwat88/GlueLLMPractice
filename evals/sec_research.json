@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "sec-001",
+      "description": "Retrieves annual filing style answer for Apple.",
+      "input": { "query": "What was Apple's most recent annual filing?" },
+      "expected": { "form_type": "10-K", "ticker": "AAPL", "contains_keywords": ["annual", "10-k"] },
+      "tags": ["happy-path", "tool-use"]
+    },
+    {
+      "id": "sec-002",
+      "description": "Handles unknown ticker gracefully.",
+      "input": { "query": "Show me filings for ticker ZZZNOTREAL" },
+      "expected": { "error_handled": true, "response_contains": ["no results", "not found", "unable"] },
+      "tags": ["error-handling"]
+    },
+    {
+      "id": "sec-003",
+      "description": "Extracts numeric fact from 10-Q style question.",
+      "input": { "query": "What was Microsoft's revenue in their last 10-Q?" },
+      "expected": { "ticker": "MSFT", "form_type": "10-Q", "contains_numeric_value": true },
+      "tags": ["happy-path"]
+    },
+    {
+      "id": "sec-004",
+      "description": "Edge case with ambiguous empty-like query.",
+      "input": { "query": " " },
+      "expected": { "error_handled": true },
+      "tags": ["edge-case"]
+    },
+    {
+      "id": "sec-005",
+      "description": "Regression: output still includes citation-like markers.",
+      "input": { "query": "Give a cited summary of the latest 8-K for Tesla." },
+      "expected": { "contains_keywords": ["8-k"], "citation_like": true },
+      "tags": ["regression"]
+    }
+  ]
+}
+

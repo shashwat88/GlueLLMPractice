@@ -141,6 +141,13 @@ async def _answer_with_workflow(
     history: list[tuple[str, str]],
 ) -> SecAnswer:
     """Answer a single question using ReflectionWorkflow and parse strict JSON."""
+    if not model.strip():
+        raise ValueError("model must be non-empty")
+    if max_tool_iterations < 1:
+        raise ValueError("max_tool_iterations must be >= 1")
+    if not question.strip():
+        raise ValueError("question must be non-empty")
+
     turn_id = uuid.uuid4().hex[:8]
     logger.info(
         "sec.turn_start turn_id=%s question_len=%s history_turns=%s",
