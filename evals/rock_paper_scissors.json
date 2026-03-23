@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "rps-001",
+      "description": "Single round runs and returns valid moves.",
+      "input": { "rounds": 1 },
+      "expected": { "rounds_equals": 1, "valid_moves_only": true, "history_len_equals": 1 },
+      "tags": ["happy-path"]
+    },
+    {
+      "id": "rps-002",
+      "description": "Three-round game returns exactly three history entries.",
+      "input": { "rounds": 3 },
+      "expected": { "rounds_equals": 3, "history_len_equals": 3, "valid_moves_only": true },
+      "tags": ["tool-use"]
+    },
+    {
+      "id": "rps-003",
+      "description": "Edge case: zero rounds should not fail.",
+      "input": { "rounds": 0 },
+      "expected": { "rounds_equals": 0, "history_len_equals": 0 },
+      "tags": ["edge-case"]
+    },
+    {
+      "id": "rps-004",
+      "description": "Error-handling: negative rounds are handled gracefully.",
+      "input": { "rounds": -1 },
+      "expected": { "error_handled": true },
+      "tags": ["error-handling"]
+    },
+    {
+      "id": "rps-005",
+      "description": "Regression check for deterministic score accounting.",
+      "input": { "rounds": 2 },
+      "expected": { "rounds_equals": 2, "score_consistent": true },
+      "tags": ["regression"]
+    }
+  ]
+}
+

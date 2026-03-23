@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "eodhd-001",
+      "description": "Answers quote question for AAPL.",
+      "input": { "symbol": "AAPL", "query": "What is the latest price for AAPL?" },
+      "expected": { "stock_symbol": "AAPL", "can_answer": true },
+      "tags": ["happy-path", "tool-use"]
+    },
+    {
+      "id": "eodhd-002",
+      "description": "Edge case with lowercase symbol input.",
+      "input": { "symbol": "msft", "query": "Tell me the day high for this stock." },
+      "expected": { "stock_symbol": "MSFT", "loop_terminated": true },
+      "tags": ["edge-case"]
+    },
+    {
+      "id": "eodhd-003",
+      "description": "Handles invalid symbol gracefully.",
+      "input": { "symbol": "1234", "query": "What is the price?" },
+      "expected": { "error_handled": true },
+      "tags": ["error-handling"]
+    },
+    {
+      "id": "eodhd-004",
+      "description": "Tool-use path for volume-related question.",
+      "input": { "symbol": "TSLA", "query": "What is the current volume?" },
+      "expected": { "stock_symbol": "TSLA", "tool_signal": true },
+      "tags": ["tool-use"]
+    },
+    {
+      "id": "eodhd-005",
+      "description": "Regression: unrelated question should not be force-answered.",
+      "input": { "symbol": "GOOGL", "query": "Write a poem about this stock." },
+      "expected": { "error_handled": true },
+      "tags": ["regression"]
+    }
+  ]
+}
+

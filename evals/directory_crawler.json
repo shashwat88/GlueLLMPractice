@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "dir-001",
+      "description": "Counts Python files in fixture tree.",
+      "input": { "root": "evals/fixtures/directory_case", "query": "How many Python files are there?" },
+      "expected": { "can_answer": true, "contains_keywords": ["python"] },
+      "tags": ["happy-path", "tool-use"]
+    },
+    {
+      "id": "dir-002",
+      "description": "Edge case with very specific extension question.",
+      "input": { "root": "evals/fixtures/directory_case", "query": "Is there any .md file?" },
+      "expected": { "loop_terminated": true },
+      "tags": ["edge-case"]
+    },
+    {
+      "id": "dir-003",
+      "description": "Error handling for missing directory path.",
+      "input": { "root": "evals/fixtures/not_real", "query": "How many files?" },
+      "expected": { "error_handled": true },
+      "tags": ["error-handling"]
+    },
+    {
+      "id": "dir-004",
+      "description": "Checks largest-file style question path.",
+      "input": { "root": "evals/fixtures/directory_case", "query": "What is the largest file?" },
+      "expected": { "can_answer": true },
+      "tags": ["tool-use"]
+    },
+    {
+      "id": "dir-005",
+      "description": "Regression: asks for unsupported content read and expects graceful fallback.",
+      "input": { "root": "evals/fixtures/directory_case", "query": "Read the content of app.py" },
+      "expected": { "error_handled": true },
+      "tags": ["regression"]
+    }
+  ]
+}
+

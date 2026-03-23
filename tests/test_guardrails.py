@@ -13,7 +13,7 @@ from agents.rock_paper_scissors import _AgentTextExecutor as RPSTextExecutor
 from core.base_agent import BaseAgent
 from core.guardrails import default_guardrails_config
 from core.workflow_wrappers import _AgentTextExecutor as WorkflowTextExecutor
-from eval.run_eval_recording import run_eval_recording
+from evals.run_eval_recording import run_eval_recording
 
 
 def test_default_guardrails_config_uses_sdk_types() -> None:
@@ -121,8 +121,8 @@ async def test_eval_runner_passes_guardrails(monkeypatch: pytest.MonkeyPatch, tm
             _ = prompt
             return SimpleNamespace(final_response="ok")
 
-    monkeypatch.setattr("eval.run_eval_recording.JSONLFileStore", FakeStore)
-    monkeypatch.setattr("eval.run_eval_recording.GlueLLM", FakeGlueLLM)
+    monkeypatch.setattr("evals.run_eval_recording.JSONLFileStore", FakeStore)
+    monkeypatch.setattr("evals.run_eval_recording.GlueLLM", FakeGlueLLM)
 
     await run_eval_recording(
         output_path=tmp_path / "records.jsonl",

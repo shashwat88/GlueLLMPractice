@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "research-001",
+      "description": "Returns structured summary for common topic.",
+      "input": { "query": "What is Python programming language?" },
+      "expected": { "can_answer": true, "contains_keywords": ["python"] },
+      "tags": ["happy-path", "tool-use"]
+    },
+    {
+      "id": "research-002",
+      "description": "Edge case with very short query.",
+      "input": { "query": "AI" },
+      "expected": { "loop_terminated": true },
+      "tags": ["edge-case"]
+    },
+    {
+      "id": "research-003",
+      "description": "Handles nonsensical query gracefully.",
+      "input": { "query": "qwertyuiopasdfghjkl uncommon nonsense topic" },
+      "expected": { "error_handled": true, "response_contains": ["cannot", "insufficient", "no relevant"] },
+      "tags": ["error-handling"]
+    },
+    {
+      "id": "research-004",
+      "description": "Tool-use path with factual query.",
+      "input": { "query": "Who was Ada Lovelace?" },
+      "expected": { "can_answer": true, "contains_keywords": ["ada", "lovelace"] },
+      "tags": ["tool-use"]
+    },
+    {
+      "id": "research-005",
+      "description": "Regression case for source-backed output.",
+      "input": { "query": "What is a deterministic algorithm?" },
+      "expected": { "can_answer": true, "sources_nonempty": true },
+      "tags": ["regression"]
+    }
+  ]
+}
+

@@ -79,6 +79,9 @@ def _print_final(result: RPSGameResult) -> None:
 
 async def run(rounds: int) -> RPSGameResult:
     """Run a full RPS game and return the result."""
+    if rounds < 0:
+        raise ValueError("rounds must be >= 0")
+
     run_id = uuid.uuid4().hex[:8]
     logger.info("rps.start run_id=%s rounds=%s", run_id, rounds)
     player_a_agent = Agent(
