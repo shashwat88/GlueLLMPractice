@@ -17,6 +17,8 @@ from pathlib import Path
 from gluellm import GlueLLM
 from gluellm.eval import JSONLFileStore
 
+from core.guardrails import default_guardrails_config
+
 
 def _default_output_path() -> Path:
     logs_dir = Path("logs")
@@ -27,7 +29,7 @@ def _default_output_path() -> Path:
 async def run_eval_recording(*, output_path: Path, model: str, prompts: list[str]) -> None:
     """Run prompts through GlueLLM and record eval traces to JSONL."""
     store = JSONLFileStore(str(output_path))
-    client = GlueLLM(model=model, eval_store=store)
+    client = GlueLLM(model=model, eval_store=store, guardrails=default_guardrails_config())
 
     try:
         for prompt in prompts:

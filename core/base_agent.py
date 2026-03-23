@@ -14,6 +14,7 @@ from typing import Any, Generic, TypeVar
 from gluellm.api import GlueLLM
 from pydantic import BaseModel
 
+from core.guardrails import default_guardrails_config
 from core.logging_config import log_llm_request_response
 
 TStructured = TypeVar("TStructured", bound=BaseModel)
@@ -50,6 +51,7 @@ class BaseAgent(Generic[TStructured]):
             system_prompt=self.system_prompt,
             tools=self.tools,
             max_tool_iterations=self.max_tool_iterations,
+            guardrails=default_guardrails_config(),
         )
         return self.client
 

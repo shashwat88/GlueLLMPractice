@@ -22,6 +22,7 @@ from gluellm.models.prompt import SystemPrompt
 from gluellm.models.workflow import RoundRobinConfig
 from gluellm.workflows.round_robin import RoundRobinWorkflow
 
+from core.guardrails import default_guardrails_config
 from core.logging_config import get_logger, log_llm_request_response, setup_logging
 from core.loop import RPSGameResult, RPSRoundHistory, normalize_rps_move, rps_winner
 
@@ -48,6 +49,7 @@ class _AgentTextExecutor:
             tools=self._agent.tools,
             max_tool_iterations=self._agent.max_tool_iterations,
             max_tokens=self._agent.max_tokens,
+            guardrails=default_guardrails_config(),
         )
         result = await client.complete(query)
         try:

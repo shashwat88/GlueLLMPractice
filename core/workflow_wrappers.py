@@ -23,6 +23,7 @@ from gluellm.models.workflow import ReflectionConfig
 from gluellm.workflows.reflection import ReflectionWorkflow
 from pydantic import BaseModel
 
+from core.guardrails import default_guardrails_config
 from core.logging_config import log_llm_request_response
 
 T = TypeVar("T", bound=BaseModel)
@@ -51,6 +52,7 @@ class _AgentTextExecutor:
             tools=self._agent.tools,
             max_tool_iterations=self._agent.max_tool_iterations,
             max_tokens=self._agent.max_tokens,
+            guardrails=default_guardrails_config(),
         )
         result = await client.complete(query)
         try:

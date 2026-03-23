@@ -74,6 +74,30 @@ export PROJECT_DISABLE_LOGGING="false"     # set true to disable logging setup
 
 By default, logs go to `logs/gluellm_practice.log`.
 
+#### SDK guardrails (active by default)
+
+This project actively enables GlueLLM SDK guardrails on all `GlueLLM(...)` clients via `core/guardrails.py`.
+
+Configured SDK guardrails:
+- `PIIConfig` redaction for common sensitive patterns
+- `MaxLengthConfig` input/output length limits
+- optional `BlocklistConfig` patterns (env-driven)
+
+Useful env vars:
+
+```bash
+export PROJECT_GUARDRAILS_ENABLED="true"                  # global on/off
+export PROJECT_GUARDRAILS_MAX_INPUT_LENGTH="12000"
+export PROJECT_GUARDRAILS_MAX_OUTPUT_LENGTH="4000"
+export PROJECT_GUARDRAILS_MAX_LENGTH_STRATEGY="block"     # block|truncate
+export PROJECT_GUARDRAILS_MAX_RETRIES="2"                 # output guardrail retries
+export PROJECT_GUARDRAILS_BLOCKLIST_PATTERNS="foo,bar"    # optional comma-separated regex patterns
+export PROJECT_GUARDRAILS_REDACT_EMAILS="true"
+export PROJECT_GUARDRAILS_REDACT_PHONES="true"
+export PROJECT_GUARDRAILS_REDACT_SSN="true"
+export PROJECT_GUARDRAILS_REDACT_CREDIT_CARDS="true"
+```
+
 ## Project Layout
 
 ```text
@@ -213,6 +237,7 @@ This repo uses GlueLLM's official eval recording APIs directly (no custom eval f
 
 - `gluellm.eval.JSONLFileStore`
 - `GlueLLM(..., eval_store=store)`
+- `GlueLLM(..., guardrails=...)` via shared project guardrails config
 - automatic `EvalRecord` JSONL rows on each `complete()` call
 
 ### Run eval recording
